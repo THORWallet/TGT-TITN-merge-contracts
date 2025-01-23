@@ -145,4 +145,48 @@ describe('MergeTgt tests', function () {
             expect(error.message).to.include('BridgedTokensTransferLocked')
         }
     })
+    it('should let a user to bridge TITN tokens to BASE', async function () {
+        // transfer TGT to the merge contract
+        await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+        await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+        // claim TITN
+        const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+        await mergeTgt.connect(user1).claimTitn(claimableAmount)
+
+        // Attempt to bridge ARB.TITN to BASE.TITN
+        // Defining extra message execution options for the send operation
+        const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
+        const sendParam = [
+            eidA,
+            ethers.utils.zeroPad(user1.address, 32),
+            claimableAmount.toString(),
+            claimableAmount.toString(),
+            options,
+            '0x',
+            '0x',
+        ]
+
+        // Fetching the native fee for the token send operation
+        const [nativeFee] = await arbTITN.quoteSend(sendParam, false)
+        // Executing the send operation from TITN contract
+        await arbTITN.connect(user1).send(sendParam, [nativeFee, 0], user1.address, { value: nativeFee })
+        const balanceBase = await baseTITN.balanceOf(user1.address)
+        const balanceArb = await arbTITN.balanceOf(user1.address)
+        // their ARB balance should be 0 and their BASE balance should have increased
+        expect(balanceBase).to.be.eql(claimableAmount)
+        expect(balanceArb).to.be.eql(ethers.utils.parseUnits('0', 18))
+
+        // they should not be able to transfer the BASE TITN
+        try {
+            await baseTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
+            expect.fail('Transaction should have reverted')
+        } catch (error: any) {
+            expect(error.message).to.include('BridgedTokensTransferLocked')
+        }
+
+        // but it the admin enables trading they should be able to transfer
+        await baseTITN.connect(ownerA).setBridgedTokenTransferLocked(false)
+        await baseTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
+        expect(await baseTITN.balanceOf(user2.address)).to.be.eql(ethers.utils.parseUnits('1', 18))
+    })
 })
