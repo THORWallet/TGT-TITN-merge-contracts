@@ -68,6 +68,7 @@ const config: HardhatUserConfig = {
         hardhat: {
             // Need this for testing because TestHelperOz5.sol is exceeding the compiled contract size limit
             allowUnlimitedContractSize: true,
+            chainId: 42161, // Simulate Arbitrum chain ID for testing ARB.TITN transfers
         },
     },
     // @ts-ignore
