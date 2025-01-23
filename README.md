@@ -2,11 +2,11 @@
 
 This repository contains the contracts for deploying TITN on both the BASE and ARBITRUM networks, as well as the MergeTGT contract on ARBITRUM.
 
-## Overview
+## Overview
 
 The TITN ecosystem enables users to exchange their `ARB.TGT` for `ARB.TITN`, and subsequently bridge their `ARB.TITN` to `BASE.TITN`.
 
-Key Features:
+**Key Features**:
 
 1. Token Transfers on BASE:
 
@@ -18,7 +18,7 @@ Key Features:
 - TITN holders are restricted to transferring their tokens only to the LayerZero endpoint address for bridging to BASE.
 - Admin/owner retains the ability to transfer tokens to any address.
 
-Deployment Details:
+**Deployment Details:**
 
 - BASE Network:
 
@@ -28,7 +28,7 @@ Deployment Details:
   - No TITN tokens are minted initially.
   - The owner is responsible for bridging 173.7 Million BASE.TITN to ARBITRUM and depositing them into the MergeTGT contract.
 
-Transfer Restrictions
+**Transfer Restrictions**
 
 The contracts include a transfer restriction mechanism controlled by the isBridgedTokensTransferLocked flag. This ensures controlled token movement across networks until the admin deems it appropriate to enable unrestricted transfers.
 
