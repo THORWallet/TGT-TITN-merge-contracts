@@ -20,6 +20,7 @@ describe('MergeTgt tests', function () {
     let endpointOwner: SignerWithAddress
     let user1: SignerWithAddress
     let user2: SignerWithAddress
+    let user3: SignerWithAddress
     let baseTITN: Contract
     let arbTITN: Contract
     let mergeTgt: Contract
@@ -34,7 +35,7 @@ describe('MergeTgt tests', function () {
         Tgt = await ethers.getContractFactory('Tgt')
         // Fetching the first three signers (accounts) from Hardhat's local Ethereum network
         const signers = await ethers.getSigners()
-        ;[ownerA, ownerB, endpointOwner, user1, user2] = signers
+        ;[ownerA, ownerB, endpointOwner, user1, user2, user3] = signers
         // The EndpointV2Mock contract comes from @layerzerolabs/test-devtools-evm-hardhat package
         // and its artifacts are connected as external artifacts to this project
         const EndpointV2MockArtifact = await deployments.getArtifact('EndpointV2Mock')
@@ -103,6 +104,7 @@ describe('MergeTgt tests', function () {
         // let's send some TGT to user1 and user2
         await tgt.connect(ownerB).transfer(user1.address, ethers.utils.parseUnits('1000', 18))
         await tgt.connect(ownerB).transfer(user2.address, ethers.utils.parseUnits('1000', 18))
+        await tgt.connect(ownerB).transfer(user3.address, ethers.utils.parseUnits('1000', 18))
     })
 
     describe('General tests', function () {
@@ -195,7 +197,8 @@ describe('MergeTgt tests', function () {
     describe('Time-based tests', function () {
         it('should get lower quotes after 90 days have elapsed', async function () {
             const amountOfTgtToDeposit = ethers.utils.parseUnits('1000', 18)
-            expect(await mergeTgt.quoteTitn(amountOfTgtToDeposit)).to.be.eql(ethers.utils.parseUnits('300', 18))
+            const quote = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
+            expect(quote).to.be.eql(300)
 
             // Fast forward 89 days
             await time.increase(89 * 24 * 60 * 60)
@@ -220,6 +223,39 @@ describe('MergeTgt tests', function () {
             await time.increase(250 * 24 * 60 * 60)
             const quote4 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
             expect(quote4).to.be.eq(0)
+        })
+        it('should allow withdrawal of remaining TITN after 1 year', async function () {
+            // user1 transfers TGT to the merge contract
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+
+            // user2 transfers TGT to the merge contract
+            await tgt.connect(user2).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user2).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+
+            // user3 transfers TGT to the merge contract
+            await tgt.connect(user3).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user3).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+
+            // user1 claims their TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+            await mergeTgt.connect(user1).claimTitn(claimableAmount)
+
+            expect((await arbTITN.balanceOf(user1.address)).toString()).to.be.eql('30000000000000000000')
+
+            // user2 and user3 will wait 1 year and then try to withdraw their claimable amount + 50% of the remaining (unclaimed TITN)
+            // Fast forward 365 days
+            await time.increase(365 * 24 * 60 * 60)
+
+            const availableTitn = await arbTITN.balanceOf(mergeTgt.address)
+            expect(availableTitn.toString()).to.be.eql('173699970000000000000000000')
+
+            // user2 and user3 should be able to withdraw half of availableTitn each
+            await mergeTgt.connect(user2).withdrawRemainingTitn()
+            expect((await arbTITN.balanceOf(user2.address)).toString()).to.be.eql('86849985000000000000000000')
+
+            await mergeTgt.connect(user3).withdrawRemainingTitn()
+            expect((await arbTITN.balanceOf(user3.address)).toString()).to.be.eql('86849985000000000000000000')
         })
     })
 })
