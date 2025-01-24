@@ -2,6 +2,22 @@
 
 This repository contains the contracts for deploying TITN on both the BASE and ARBITRUM networks, as well as the MergeTGT contract on ARBITRUM.
 
+## Deployed contracts
+
+### Test
+
+- BASE.TITN: `0xf72EC6551A98fE12B53f7c767AABF1aD57bB6DA1` [explorer](https://basescan.org/token/0xf72EC6551A98fE12B53f7c767AABF1aD57bB6DA1#code)
+- ARB.TITN: `0x2923b8ea6530FB0c9516f50Cd334e18d122ADAd3` [explorer](https://arbiscan.io/token/0x2923b8ea6530FB0c9516f50Cd334e18d122ADAd3#code)
+- ARB.MergeTGT: `0x22EAafe4004225c670C8A8007887DC0a9433bd86` [explorer](https://arbiscan.io/address/0x22EAafe4004225c670C8A8007887DC0a9433bd86#code)
+- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code) 
+
+### Production
+
+- BASE.TITN: 
+- ARB.TITN:
+- ARB.MergeTGT:
+- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code) 
+
 ## Overview
 
 The TITN ecosystem enables users to exchange their `ARB.TGT` for `ARB.TITN`, and subsequently bridge their `ARB.TITN` to `BASE.TITN`.
