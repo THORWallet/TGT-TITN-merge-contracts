@@ -1,4 +1,5 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { time } from '@nomicfoundation/hardhat-network-helpers'
 import { expect } from 'chai'
 import { Contract, ContractFactory } from 'ethers'
 import { deployments, ethers } from 'hardhat'
@@ -104,89 +105,121 @@ describe('MergeTgt tests', function () {
         await tgt.connect(ownerB).transfer(user2.address, ethers.utils.parseUnits('1000', 18))
     })
 
-    it('should let a user to deposit TGT into the merge contract', async function () {
-        // transfer TGT to the merge contract
-        await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
-        await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
-        // claim TITN
-        const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
-        expect(claimableAmount.toString()).to.be.equal('30000000000000000000')
-        await mergeTgt.connect(user1).claimTitn(claimableAmount)
-        const titnBalance = await arbTITN.balanceOf(user1.address)
-        expect(titnBalance.toString()).to.be.equal('30000000000000000000')
-    })
-    it('should not let a user to transfer TITN tokens', async function () {
-        // transfer TGT to the merge contract
-        await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
-        await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
-        // claim TITN
-        const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
-        await mergeTgt.connect(user1).claimTitn(claimableAmount)
-        // attempt to transfer TITN (spoiler alert: it should fail)
-        try {
-            await arbTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
-            expect.fail('Transaction should have reverted')
-        } catch (error: any) {
-            expect(error.message).to.include('BridgedTokensTransferLocked')
-        }
-    })
-    it('should not let a user to transfer TITN tokens', async function () {
-        // transfer TGT to the merge contract
-        await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
-        await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
-        // claim TITN
-        const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
-        await mergeTgt.connect(user1).claimTitn(claimableAmount)
-        // attempt to transfer TITN (spoiler alert: it should fail)
-        try {
-            await arbTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
-            expect.fail('Transaction should have reverted')
-        } catch (error: any) {
-            expect(error.message).to.include('BridgedTokensTransferLocked')
-        }
-    })
-    it('should let a user to bridge TITN tokens to BASE', async function () {
-        // transfer TGT to the merge contract
-        await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
-        await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
-        // claim TITN
-        const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
-        await mergeTgt.connect(user1).claimTitn(claimableAmount)
+    describe('General tests', function () {
+        it('should let a user to deposit TGT into the merge contract', async function () {
+            // transfer TGT to the merge contract
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+            // claim TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+            expect(claimableAmount.toString()).to.be.equal('30000000000000000000')
+            await mergeTgt.connect(user1).claimTitn(claimableAmount)
+            const titnBalance = await arbTITN.balanceOf(user1.address)
+            expect(titnBalance.toString()).to.be.equal('30000000000000000000')
+        })
+        it('should not let a user to transfer TITN tokens', async function () {
+            // transfer TGT to the merge contract
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+            // claim TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+            await mergeTgt.connect(user1).claimTitn(claimableAmount)
+            // attempt to transfer TITN (spoiler alert: it should fail)
+            try {
+                await arbTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
+                expect.fail('Transaction should have reverted')
+            } catch (error: any) {
+                expect(error.message).to.include('BridgedTokensTransferLocked')
+            }
+        })
+        it('should not let a user to transfer TITN tokens', async function () {
+            // transfer TGT to the merge contract
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+            // claim TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+            await mergeTgt.connect(user1).claimTitn(claimableAmount)
+            // attempt to transfer TITN (spoiler alert: it should fail)
+            try {
+                await arbTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
+                expect.fail('Transaction should have reverted')
+            } catch (error: any) {
+                expect(error.message).to.include('BridgedTokensTransferLocked')
+            }
+        })
+        it('should let a user to bridge TITN tokens to BASE', async function () {
+            // transfer TGT to the merge contract
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+            // claim TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+            await mergeTgt.connect(user1).claimTitn(claimableAmount)
 
-        // Attempt to bridge ARB.TITN to BASE.TITN
-        // Defining extra message execution options for the send operation
-        const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
-        const sendParam = [
-            eidA,
-            ethers.utils.zeroPad(user1.address, 32),
-            claimableAmount.toString(),
-            claimableAmount.toString(),
-            options,
-            '0x',
-            '0x',
-        ]
+            // Attempt to bridge ARB.TITN to BASE.TITN
+            // Defining extra message execution options for the send operation
+            const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
+            const sendParam = [
+                eidA,
+                ethers.utils.zeroPad(user1.address, 32),
+                claimableAmount.toString(),
+                claimableAmount.toString(),
+                options,
+                '0x',
+                '0x',
+            ]
 
-        // Fetching the native fee for the token send operation
-        const [nativeFee] = await arbTITN.quoteSend(sendParam, false)
-        // Executing the send operation from TITN contract
-        await arbTITN.connect(user1).send(sendParam, [nativeFee, 0], user1.address, { value: nativeFee })
-        const balanceBase = await baseTITN.balanceOf(user1.address)
-        const balanceArb = await arbTITN.balanceOf(user1.address)
-        // their ARB balance should be 0 and their BASE balance should have increased
-        expect(balanceBase).to.be.eql(claimableAmount)
-        expect(balanceArb).to.be.eql(ethers.utils.parseUnits('0', 18))
+            // Fetching the native fee for the token send operation
+            const [nativeFee] = await arbTITN.quoteSend(sendParam, false)
+            // Executing the send operation from TITN contract
+            await arbTITN.connect(user1).send(sendParam, [nativeFee, 0], user1.address, { value: nativeFee })
+            const balanceBase = await baseTITN.balanceOf(user1.address)
+            const balanceArb = await arbTITN.balanceOf(user1.address)
+            // their ARB balance should be 0 and their BASE balance should have increased
+            expect(balanceBase).to.be.eql(claimableAmount)
+            expect(balanceArb).to.be.eql(ethers.utils.parseUnits('0', 18))
 
-        // they should not be able to transfer the BASE TITN
-        try {
+            // they should not be able to transfer the BASE TITN
+            try {
+                await baseTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
+                expect.fail('Transaction should have reverted')
+            } catch (error: any) {
+                expect(error.message).to.include('BridgedTokensTransferLocked')
+            }
+
+            // but it the admin enables trading they should be able to transfer
+            await baseTITN.connect(ownerA).setBridgedTokenTransferLocked(false)
             await baseTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
-            expect.fail('Transaction should have reverted')
-        } catch (error: any) {
-            expect(error.message).to.include('BridgedTokensTransferLocked')
-        }
+            expect(await baseTITN.balanceOf(user2.address)).to.be.eql(ethers.utils.parseUnits('1', 18))
+        })
+    })
+    describe('Time-based tests', function () {
+        it('should get lower quotes after 90 days have elapsed', async function () {
+            const amountOfTgtToDeposit = ethers.utils.parseUnits('1000', 18)
+            expect(await mergeTgt.quoteTitn(amountOfTgtToDeposit)).to.be.eql(ethers.utils.parseUnits('300', 18))
 
-        // but it the admin enables trading they should be able to transfer
-        await baseTITN.connect(ownerA).setBridgedTokenTransferLocked(false)
-        await baseTITN.connect(user1).transfer(user2.address, ethers.utils.parseUnits('1', 18))
-        expect(await baseTITN.balanceOf(user2.address)).to.be.eql(ethers.utils.parseUnits('1', 18))
+            // Fast forward 89 days
+            await time.increase(89 * 24 * 60 * 60)
+
+            // before the 90 days have elapsed the quote should as high as day one
+            const quote1 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
+            expect(quote1).to.be.eq(300)
+
+            // Fast forward 2 days
+            await time.increase(2 * 24 * 60 * 60)
+
+            // after 90 days the quotes should be less than initially and get gradually lower as times goes by (until day 365)
+            const quote2 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
+            expect(quote2).to.be.lt(quote1)
+
+            // Fast forward 30 days
+            await time.increase(30 * 24 * 60 * 60)
+            const quote3 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
+            expect(quote3).to.be.lt(quote2)
+
+            // Fast forward 250 days
+            await time.increase(250 * 24 * 60 * 60)
+            const quote4 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
+            expect(quote4).to.be.eq(0)
+        })
     })
 })
