@@ -14,4 +14,5 @@ interface IMerge {
     error InvalidAmountReceived();
     error ZeroAmount();
     error TooEarlyToClaimRemainingTitn();
+    error TooLateToClaimRemainingTitn();
 }

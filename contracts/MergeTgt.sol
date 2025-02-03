@@ -96,6 +96,10 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
     function claimTitn(uint256 amount) external nonReentrant {
         require(amount <= claimableTitnPerUser[msg.sender], "Not enough claimable titn");
 
+        if (block.timestamp - launchTime >= 360 days) {
+            revert TooLateToClaimRemainingTitn();
+        }
+
         claimedTitnPerUser[msg.sender] += amount;
         claimableTitnPerUser[msg.sender] -= amount;
 
@@ -136,6 +140,9 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
         // Update state variables
         claimableTitnPerUser[msg.sender] = 0; // each user can only claim once
         totalTitnClaimed += titnOut;
+
+        claimedTitnPerUser[msg.sender] += titnOut;
+        totalTitnClaimable -= claimableTitn;
 
         // Transfer TITN to the user
         titn.safeTransfer(msg.sender, titnOut);
