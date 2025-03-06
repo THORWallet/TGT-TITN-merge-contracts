@@ -257,5 +257,22 @@ describe('MergeTgt tests', function () {
             await mergeTgt.connect(user3).withdrawRemainingTitn()
             expect((await arbTITN.balanceOf(user3.address)).toString()).to.be.eql('86849985000000000000000000')
         })
+        it('user locks TGT without claimable TITN if transfer on exactly day 360', async function () {
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+
+            let launchTime = await mergeTgt.launchTime()
+
+            // fast forward to just before exactly 360 days after launch
+            await time.increaseTo(launchTime.toNumber() + (360 * 24 * 60 * 60 - 2))
+
+            // transfer TGT to the merge contract at exactly 360 days after launchTime
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+
+            // get claimable TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+
+            // user can claim more than 0 TITN
+            expect(claimableAmount.toNumber()).to.be.gt(0)
+        })
     })
 })
