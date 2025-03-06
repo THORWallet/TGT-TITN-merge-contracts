@@ -16,4 +16,5 @@ interface IMerge {
     error TooEarlyToClaimRemainingTitn();
     error TooLateToClaimRemainingTitn();
     error MaxLimitExceeded();
+    error TGTExceeded();
 }

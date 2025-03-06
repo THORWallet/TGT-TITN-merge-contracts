@@ -24,6 +24,7 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
     uint256 public totalTitnClaimable;
     uint256 public remainingTitnAfter1Year;
     uint256 public initialTotalClaimable; // store the initial claimable TITN after 1 year
+    uint256 public totalTgtDeposited;
 
     LockedStatus public lockedStatus;
 
@@ -75,6 +76,9 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
         if (block.timestamp - launchTime > 360 days) {
             revert MergeEnded();
         }
+        if (totalTgtDeposited + amount > TGT_TO_EXCHANGE) {
+            revert TGTExceeded();
+        }
 
         // tgt in, titn out
 
@@ -84,6 +88,7 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
         }
         claimableTitnPerUser[from] += titnOut;
         totalTitnClaimable += titnOut;
+        totalTgtDeposited += amount;
 
         emit ClaimableTitnUpdated(from, titnOut);
     }
