@@ -79,8 +79,7 @@ contract Titn is OFT {
             to != transferAllowedContract && // Allow transfers to the transferAllowedContract
             isBridgedTokensTransferLocked && // Check if bridged transfers are locked
             // Restrict bridged token holders OR apply Arbitrum-specific restriction
-            (isBridgedTokenHolder[from] || block.chainid == arbitrumChainId) &&
-            to != lzEndpoint // Allow transfers to LayerZero endpoint
+            (isBridgedTokenHolder[from] || block.chainid == arbitrumChainId)
         ) {
             revert BridgedTokensTransferLocked();
         }
