@@ -79,6 +79,9 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
         // tgt in, titn out
 
         uint256 titnOut = quoteTitn(amount);
+        if (totalTitnClaimable + titnOut > titn.balanceOf(address(this))) {
+            revert MaxLimitExceeded();
+        }
         claimableTitnPerUser[from] += titnOut;
         totalTitnClaimable += titnOut;
 
