@@ -13,7 +13,6 @@ describe('Titn tests', function () {
     let Titn: ContractFactory
     let EndpointV2Mock: ContractFactory
     let ownerA: SignerWithAddress
-    let ownerB: SignerWithAddress
     let endpointOwner: SignerWithAddress
     let user1: SignerWithAddress
     let user2: SignerWithAddress
@@ -27,7 +26,7 @@ describe('Titn tests', function () {
         Titn = await ethers.getContractFactory('Titn')
         // Fetching the first three signers (accounts) from Hardhat's local Ethereum network
         const signers = await ethers.getSigners()
-        ;[ownerA, ownerB, endpointOwner, user1, user2] = signers
+        ;[ownerA, endpointOwner, user1, user2] = signers
         // The EndpointV2Mock contract comes from @layerzerolabs/test-devtools-evm-hardhat package
         // and its artifacts are connected as external artifacts to this project
         const EndpointV2MockArtifact = await deployments.getArtifact('EndpointV2Mock')
@@ -50,7 +49,7 @@ describe('Titn tests', function () {
             'arbTitn',
             'arbTITN',
             mockEndpointV2B.address,
-            ownerB.address,
+            ownerA.address,
             ethers.utils.parseUnits('0', 18)
         )
         // Setting destination endpoints in the LZEndpoint mock for each TITN instance
@@ -58,7 +57,7 @@ describe('Titn tests', function () {
         await mockEndpointV2B.setDestLzEndpoint(baseTITN.address, mockEndpointV2A.address)
         // Setting each TITN instance as a peer of the other in the mock LZEndpoint
         await baseTITN.connect(ownerA).setPeer(eidB, ethers.utils.zeroPad(arbTITN.address, 32))
-        await arbTITN.connect(ownerB).setPeer(eidA, ethers.utils.zeroPad(baseTITN.address, 32))
+        await arbTITN.connect(ownerA).setPeer(eidA, ethers.utils.zeroPad(baseTITN.address, 32))
     })
 
     it('should send a token from A address to B address via each OFT', async function () {
@@ -70,7 +69,7 @@ describe('Titn tests', function () {
         const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
         const sendParam = [
             eidB,
-            ethers.utils.zeroPad(ownerB.address, 32),
+            ethers.utils.zeroPad(ownerA.address, 32),
             tokensToSend,
             tokensToSend,
             options,
@@ -81,20 +80,21 @@ describe('Titn tests', function () {
         const [nativeFee] = await baseTITN.quoteSend(sendParam, false)
         // Executing the send operation from TITN contract
         await baseTITN.send(sendParam, [nativeFee, 0], ownerA.address, { value: nativeFee })
-        // Fetching the final token balances of ownerA and ownerB
+        // Fetching the final token balances of ownerA and ownerA
         const finalBalanceA = await baseTITN.balanceOf(ownerA.address)
-        const finalBalanceB = await arbTITN.balanceOf(ownerB.address)
+        const finalBalanceB = await arbTITN.balanceOf(ownerA.address)
         // Asserting that the final balances are as expected after the send operation
         expect(finalBalanceA).eql(initialAmount.sub(tokensToSend))
         expect(finalBalanceB).eql(tokensToSend)
     })
     it('should bridge tokens back from ARB to BASE', async function () {
+        const initialBalanceA = await baseTITN.balanceOf(ownerA.address)
         const tokensToSend = ethers.utils.parseEther('1')
         // Defining extra message execution options for the send operation
         const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
         const sendParam = [
             eidB,
-            ethers.utils.zeroPad(ownerB.address, 32),
+            ethers.utils.zeroPad(ownerA.address, 32),
             tokensToSend,
             tokensToSend,
             options,
@@ -106,16 +106,16 @@ describe('Titn tests', function () {
         // Executing the send operation from TITN contract
         await baseTITN.send(sendParam, [nativeFee, 0], ownerA.address, { value: nativeFee })
 
-        // Fetch ownerB's initial balance on arbTITN
-        const initialBalanceB = await arbTITN.balanceOf(ownerB.address)
-        expect(initialBalanceB).to.eql(ethers.utils.parseEther('1')) // Confirm ownerB has 1 TITN on arbTITN
+        // Fetch ownerA's initial balance on arbTITN
+        const initialBalanceB = await arbTITN.balanceOf(ownerA.address)
+        expect(initialBalanceB).to.eql(ethers.utils.parseEther('1')) // Confirm ownerA has 1 TITN on arbTITN
 
         // Define the amount to send back and construct the parameters for the send operation
         const tokensToSendBack = ethers.utils.parseEther('1') // Sending back the entire balance
         const optionsBack = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
         const sendBackParam = [
             eidA, // Base endpoint ID
-            ethers.utils.zeroPad(ownerB.address, 32), // Sending back to ownerA's address on Base
+            ethers.utils.zeroPad(ownerA.address, 32), // Sending back to ownerA's address on Base
             tokensToSendBack, // Amount to send
             tokensToSendBack, // Minimum amount to send
             optionsBack, // Additional execution options
@@ -127,14 +127,40 @@ describe('Titn tests', function () {
         const [nativeFeeBack] = await arbTITN.quoteSend(sendBackParam, false)
 
         // // Execute the bridging operation from arbTITN to baseTITN
-        await arbTITN.connect(ownerB).send(sendBackParam, [nativeFeeBack, 0], ownerB.address, { value: nativeFeeBack })
+        await arbTITN.connect(ownerA).send(sendBackParam, [nativeFeeBack, 0], ownerA.address, { value: nativeFeeBack })
 
         // // Fetch final balances on arbTITN and baseTITN
-        const finalBalanceB = await arbTITN.balanceOf(ownerB.address)
-        const finalBalanceBOnBase = await baseTITN.balanceOf(ownerB.address)
+        const finalBalanceB = await arbTITN.balanceOf(ownerA.address)
+        const finalBalanceBOnBase = await baseTITN.balanceOf(ownerA.address)
 
         // Assert balances after the bridging operation
-        expect(finalBalanceB).to.eql(ethers.utils.parseEther('0')) // ownerB should have no tokens left on arbTITN
-        expect(finalBalanceBOnBase.toString()).to.eql(tokensToSendBack.toString()) // ownerA should receive 1 TITN back on baseTITN
+        expect(finalBalanceB).to.eql(ethers.utils.parseEther('0')) // ownerA should have no tokens left on arbTITN
+        expect(finalBalanceBOnBase.toString()).to.eql(initialBalanceA.toString()) // ownerA should receive 1 TITN back on baseTITN
+    })
+    it('should fail to bridge to a different address', async function () {
+        // Minting an initial amount of tokens to ownerA's address in the TITN contract
+        const initialAmount = ethers.utils.parseEther('1000000000')
+        // Defining the amount of tokens to send and constructing the parameters for the send operation
+        const tokensToSend = ethers.utils.parseEther('1')
+        // Defining extra message execution options for the send operation
+        const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
+        const sendParam = [
+            eidB,
+            ethers.utils.zeroPad(user1.address, 32),
+            tokensToSend,
+            tokensToSend,
+            options,
+            '0x',
+            '0x',
+        ]
+        // Fetching the native fee for the token send operation
+        const [nativeFee] = await baseTITN.quoteSend(sendParam, false)
+        // Executing the send operation from TITN contract
+        try {
+            await baseTITN.send(sendParam, [nativeFee, 0], ownerA.address, { value: nativeFee })
+            expect.fail('Transaction should have reverted')
+        } catch (error: any) {
+            expect(error.message).to.include('Must bridge to your own address')
+        }
     })
 })
