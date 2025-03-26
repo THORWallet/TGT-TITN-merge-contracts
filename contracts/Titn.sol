@@ -116,8 +116,10 @@ contract Titn is OFT {
         MessagingFee calldata _fee,
         address _refundAddress
     ) internal virtual override returns (MessagingReceipt memory msgReceipt, OFTReceipt memory oftReceipt) {
-        // Enforce bridging to the same address that is sending from source:
-        require(_sendParam.to == bytes32(uint256(uint160(msg.sender))), "Must bridge to your own address");
+        // Enforce bridging to the same address that is sending from source during the locked period:
+        if (isBridgedTokensTransferLocked) {
+            require(_sendParam.to == bytes32(uint256(uint160(msg.sender))), "Must bridge to your own address");
+        }
 
         // then proceed with the normal default logic
         (uint256 amountSentLD, uint256 amountReceivedLD) = _debit(
