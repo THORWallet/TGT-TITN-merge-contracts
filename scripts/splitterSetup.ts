@@ -1,6 +1,7 @@
 import hre from 'hardhat'
 
 // RUN: npx hardhat run scripts/splitterSetup.ts --network arbitrumOne
+// RUN: npx hardhat run scripts/splitterSetup.ts --network main
 
 async function main() {
     const { deployments, ethers } = hre
@@ -20,7 +21,7 @@ async function main() {
 
     try {
         console.log(`Initialting splitter setup steps:`)
-        // await splitter.setToken(hre.network.name === 'arbitrumOne' ? ARBITRUM_USDC_ADDRESS : BASE_USDC_ADDRESS)
+        await splitter.setToken(hre.network.name === 'arbitrumOne' ? ARBITRUM_USDC_ADDRESS : BASE_USDC_ADDRESS)
         console.log(`1/2 splitter.setToken(usdcAddress) ✅`)
         await splitter.setRecipients(
             [AFFILIATE_ADDRESS, hre.network.name === 'arbitrumOne' ? ARBITRUM_STAKING_ADDRESS : BASE_STAKING_ADDRESS],
