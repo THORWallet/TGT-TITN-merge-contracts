@@ -16,7 +16,6 @@ describe('MergeTgt tests', function () {
     let Tgt: ContractFactory
     let EndpointV2Mock: ContractFactory
     let ownerA: SignerWithAddress
-    let ownerB: SignerWithAddress
     let endpointOwner: SignerWithAddress
     let user1: SignerWithAddress
     let user2: SignerWithAddress
@@ -35,7 +34,7 @@ describe('MergeTgt tests', function () {
         Tgt = await ethers.getContractFactory('Tgt')
         // Fetching the first three signers (accounts) from Hardhat's local Ethereum network
         const signers = await ethers.getSigners()
-        ;[ownerA, ownerB, endpointOwner, user1, user2, user3] = signers
+        ;[ownerA, endpointOwner, user1, user2, user3] = signers
         // The EndpointV2Mock contract comes from @layerzerolabs/test-devtools-evm-hardhat package
         // and its artifacts are connected as external artifacts to this project
         const EndpointV2MockArtifact = await deployments.getArtifact('EndpointV2Mock')
@@ -58,7 +57,7 @@ describe('MergeTgt tests', function () {
             'arbTitn',
             'arbTITN',
             mockEndpointV2B.address,
-            ownerB.address,
+            ownerA.address,
             ethers.utils.parseUnits('0', 18)
         )
         // Setting destination endpoints in the LZEndpoint mock for each TITN instance
@@ -66,7 +65,7 @@ describe('MergeTgt tests', function () {
         await mockEndpointV2B.setDestLzEndpoint(baseTITN.address, mockEndpointV2A.address)
         // Setting each TITN instance as a peer of the other in the mock LZEndpoint
         await baseTITN.connect(ownerA).setPeer(eidB, ethers.utils.zeroPad(arbTITN.address, 32))
-        await arbTITN.connect(ownerB).setPeer(eidA, ethers.utils.zeroPad(baseTITN.address, 32))
+        await arbTITN.connect(ownerA).setPeer(eidA, ethers.utils.zeroPad(baseTITN.address, 32))
 
         // Defining the amount of tokens to send and constructing the parameters for the send operation
         const tokensToSend = ethers.utils.parseEther('173700000')
@@ -74,7 +73,7 @@ describe('MergeTgt tests', function () {
         const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
         const sendParam = [
             eidB,
-            ethers.utils.zeroPad(ownerB.address, 32),
+            ethers.utils.zeroPad(ownerA.address, 32),
             tokensToSend,
             tokensToSend,
             options,
@@ -87,24 +86,24 @@ describe('MergeTgt tests', function () {
         await baseTITN.send(sendParam, [nativeFee, 0], ownerA.address, { value: nativeFee })
 
         // Deply MockTGT contract
-        tgt = await Tgt.deploy('Tgt', 'TGT', ownerB.address, ethers.utils.parseUnits('1000000000', 18))
+        tgt = await Tgt.deploy('Tgt', 'TGT', ownerA.address, ethers.utils.parseUnits('1000000000', 18))
 
         // Deploy MergeTgt contract
-        mergeTgt = await MergeTgt.deploy(tgt.address, arbTITN.address, ownerB.address)
+        mergeTgt = await MergeTgt.deploy(tgt.address, arbTITN.address, ownerA.address)
 
         // Arbitrum setup
-        await arbTITN.connect(ownerB).setTransferAllowedContract(mergeTgt.address)
-        await mergeTgt.connect(ownerB).setLaunchTime()
-        await mergeTgt.connect(ownerB).setLockedStatus(1)
+        await arbTITN.connect(ownerA).setTransferAllowedContract(mergeTgt.address)
+        await mergeTgt.connect(ownerA).setLaunchTime()
+        await mergeTgt.connect(ownerA).setLockedStatus(1)
 
         // now the admin should deposit all ARB.TITN into the mergeTGT contract
-        await arbTITN.connect(ownerB).approve(mergeTgt.address, ethers.utils.parseUnits('173700000', 18))
-        await mergeTgt.connect(ownerB).deposit(arbTITN.address, ethers.utils.parseUnits('173700000', 18))
+        await arbTITN.connect(ownerA).approve(mergeTgt.address, ethers.utils.parseUnits('173700000', 18))
+        await mergeTgt.connect(ownerA).deposit(arbTITN.address, ethers.utils.parseUnits('173700000', 18))
 
         // let's send some TGT to user1 and user2
-        await tgt.connect(ownerB).transfer(user1.address, ethers.utils.parseUnits('1000', 18))
-        await tgt.connect(ownerB).transfer(user2.address, ethers.utils.parseUnits('1000', 18))
-        await tgt.connect(ownerB).transfer(user3.address, ethers.utils.parseUnits('1000', 18))
+        await tgt.connect(ownerA).transfer(user1.address, ethers.utils.parseUnits('1000', 18))
+        await tgt.connect(ownerA).transfer(user2.address, ethers.utils.parseUnits('1000', 18))
+        await tgt.connect(ownerA).transfer(user3.address, ethers.utils.parseUnits('1000', 18))
     })
 
     describe('General tests', function () {
@@ -256,6 +255,23 @@ describe('MergeTgt tests', function () {
 
             await mergeTgt.connect(user3).withdrawRemainingTitn()
             expect((await arbTITN.balanceOf(user3.address)).toString()).to.be.eql('86849985000000000000000000')
+        })
+        it('user locks TGT without claimable TITN if transfer on exactly day 360', async function () {
+            await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))
+
+            let launchTime = await mergeTgt.launchTime()
+
+            // fast forward to just before exactly 360 days after launch
+            await time.increaseTo(launchTime.toNumber() + (360 * 24 * 60 * 60 - 2))
+
+            // transfer TGT to the merge contract at exactly 360 days after launchTime
+            await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
+
+            // get claimable TITN
+            const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
+
+            // user can claim more than 0 TITN
+            expect(claimableAmount.toNumber()).to.be.gt(0)
         })
     })
 })

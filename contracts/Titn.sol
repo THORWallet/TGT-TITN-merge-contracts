@@ -3,6 +3,7 @@ pragma solidity ^0.8.22;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { OFT } from "@layerzerolabs/oft-evm/contracts/OFT.sol";
+import { SendParam, MessagingFee, MessagingReceipt, OFTReceipt } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 
 contract Titn is OFT {
     // Bridged token holder may have transfer restricted
@@ -79,8 +80,7 @@ contract Titn is OFT {
             to != transferAllowedContract && // Allow transfers to the transferAllowedContract
             isBridgedTokensTransferLocked && // Check if bridged transfers are locked
             // Restrict bridged token holders OR apply Arbitrum-specific restriction
-            (isBridgedTokenHolder[from] || block.chainid == arbitrumChainId) &&
-            to != lzEndpoint // Allow transfers to LayerZero endpoint
+            (isBridgedTokenHolder[from] || block.chainid == arbitrumChainId)
         ) {
             revert BridgedTokensTransferLocked();
         }
@@ -109,5 +109,30 @@ contract Titn is OFT {
 
         // In the case of NON-default OFT, the _amountLD MIGHT not be == amountReceivedLD.
         return _amountLD;
+    }
+
+    function _send(
+        SendParam calldata _sendParam,
+        MessagingFee calldata _fee,
+        address _refundAddress
+    ) internal virtual override returns (MessagingReceipt memory msgReceipt, OFTReceipt memory oftReceipt) {
+        // Enforce bridging to the same address that is sending from source during the locked period:
+        if (isBridgedTokensTransferLocked) {
+            require(_sendParam.to == bytes32(uint256(uint160(msg.sender))), "Must bridge to your own address");
+        }
+
+        // then proceed with the normal default logic
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debit(
+            msg.sender,
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+
+        (bytes memory message, bytes memory options) = _buildMsgAndOptions(_sendParam, amountReceivedLD);
+        msgReceipt = _lzSend(_sendParam.dstEid, message, options, _fee, _refundAddress);
+
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+        emit OFTSent(msgReceipt.guid, _sendParam.dstEid, msg.sender, amountSentLD, amountReceivedLD);
     }
 }
