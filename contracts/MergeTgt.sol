@@ -72,7 +72,7 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
         if (amount == 0) {
             revert ZeroAmount();
         }
-        if (block.timestamp - launchTime > 360 days) {
+        if (block.timestamp - launchTime >= 360 days) {
             revert MergeEnded();
         }
 
