@@ -1,6 +1,7 @@
 import hre from 'hardhat'
 
 // RUN: npx hardhat run scripts/splitter3WaySetup.ts --network arbitrumOne
+// RUN: npx hardhat run scripts/splitter3WaySetup.ts --network base
 
 async function main() {
     const { deployments, ethers } = hre
@@ -12,8 +13,8 @@ async function main() {
     const BASE_USDC_ADDRESS = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
     const AFFILIATE_ADDRESS = '0x19Dd3215A1C7CA4459d9C9F277654E5D266737dc'
     const ARBITRUM_STAKING_ADDRESS = '0x6745c897ab1f4fda9f7700e8be6ea2ee03672759'
-    const BASE_STAKING_ADDRESS = AFFILIATE_ADDRESS // TODO
-    const BASE_RUFFLE_ADDRESS = AFFILIATE_ADDRESS // TODO
+    const BASE_STAKING_ADDRESS = '0xe740ACc1e0233109381187db9801BE9a40FEb77C'
+    const BASE_RUFFLE_ADDRESS = BASE_STAKING_ADDRESS // TODO
     const ARBITRUM_RUFFLE_ADDRESS = ARBITRUM_STAKING_ADDRESS // TODO
 
     // Initialize contract
