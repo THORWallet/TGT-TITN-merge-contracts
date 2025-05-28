@@ -8,6 +8,7 @@ interface IERC20 {
 
 contract RafflePayout {
     address public owner;
+    address public delegate; // can submit raffle winners (call the finalizeRaffle function)
     IERC20 public usdc;
     uint256 public constant CLAIM_DURATION = 30 days;
 
@@ -26,6 +27,15 @@ contract RafflePayout {
         _;
     }
 
+    modifier onlyOwnerOrDelegate() {
+        require(msg.sender == owner || msg.sender == delegate, "Not authorized");
+        _;
+    }
+
+    function setDelegate(address _delegate) external onlyOwner {
+        delegate = _delegate;
+    }
+
     event RaffleFinalized(uint256 indexed raffleId, uint256 totalAmount, uint256 timestamp);
     event Claimed(address indexed winner, uint256 indexed raffleId, uint256 amount);
     event ExpiredFundsRecovered(uint256 indexed raffleId, uint256 amount);
@@ -40,7 +50,7 @@ contract RafflePayout {
         address[] calldata winners,
         uint256[] calldata amounts,
         uint256 totalAmount
-    ) external onlyOwner {
+    ) external onlyOwnerOrDelegate {
         require(!raffles[raffleId].finalized, "Already finalized");
         require(winners.length == amounts.length, "Length mismatch");
 
