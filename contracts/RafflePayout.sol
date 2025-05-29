@@ -4,6 +4,7 @@ pragma solidity ^0.8.22;
 interface IERC20 {
     function transfer(address recipient, uint256 amount) external returns (bool);
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
 }
 
 contract RafflePayout {
@@ -11,6 +12,7 @@ contract RafflePayout {
     address public delegate; // can submit raffle winners (call the finalizeRaffle function)
     IERC20 public usdc;
     uint256 public constant CLAIM_DURATION = 30 days;
+    uint256 public lockedAmount; // USDC reserved to winners
 
     struct Raffle {
         uint256 totalAmount;
@@ -54,8 +56,7 @@ contract RafflePayout {
         require(!raffles[raffleId].finalized, "Already finalized");
         require(winners.length == amounts.length, "Length mismatch");
 
-        // Transfer total USDC to contract
-        require(usdc.transferFrom(msg.sender, address(this), totalAmount), "Transfer failed");
+        require(usdc.balanceOf(address(this)) >= lockedAmount + totalAmount, "Insufficient available USDC in contract");
 
         Raffle storage raffle = raffles[raffleId];
         raffle.totalAmount = totalAmount;
@@ -67,6 +68,8 @@ contract RafflePayout {
             require(amounts[i] > 0, "Zero amount");
             raffle.winners[winners[i]] = amounts[i];
         }
+
+        lockedAmount += totalAmount;
 
         emit RaffleFinalized(raffleId, totalAmount, block.timestamp);
     }
@@ -82,6 +85,8 @@ contract RafflePayout {
 
         raffle.claimed[msg.sender] = true;
         require(usdc.transfer(msg.sender, amount), "USDC transfer failed");
+
+        lockedAmount -= amount;
 
         emit Claimed(msg.sender, raffleId, amount);
     }
@@ -104,6 +109,7 @@ contract RafflePayout {
 
         if (reclaimed > 0) {
             require(usdc.transfer(owner, reclaimed), "USDC refund failed");
+            lockedAmount -= reclaimed;
             emit ExpiredFundsRecovered(raffleId, reclaimed);
         }
     }
@@ -118,5 +124,10 @@ contract RafflePayout {
     function updateOwner(address newOwner) external onlyOwner {
         require(newOwner != address(0), "Invalid new owner");
         owner = newOwner;
+    }
+
+    function getAvailableUsdc() external view returns (uint256) {
+        uint256 balance = usdc.balanceOf(address(this));
+        return balance > lockedAmount ? balance - lockedAmount : 0;
     }
 }

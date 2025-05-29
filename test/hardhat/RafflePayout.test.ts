@@ -17,6 +17,7 @@ describe('RafflePayout', function () {
     let usdc: Contract
 
     const RAFFLE_ID = 1
+    const RAFFLE_ID_2 = 2
     const CLAIM_DURATION = 30 * 24 * 60 * 60 // 30 days
     const usdcMinted = ethers.utils.parseUnits('1000', 6)
     const reward1 = ethers.utils.parseUnits('100', 6)
@@ -37,25 +38,57 @@ describe('RafflePayout', function () {
         await raffle.connect(owner).setDelegate(delegate.address)
     })
 
-    it('should allow the owner to finalize a raffle and winners to claim', async function () {
-        await usdc.connect(delegate).approve(raffle.address, totalReward)
+    it('should increase the amount of available USDC', async function () {
+        const balanceBefore = await usdc.balanceOf(raffle.address)
+        await usdc.connect(delegate).transfer(raffle.address, totalReward)
+        const balanceAfter = await usdc.balanceOf(raffle.address)
 
+        expect(Number(balanceBefore.toString())).to.be.lt(Number(balanceAfter.toString()))
+
+        const availableUsdc = await raffle.getAvailableUsdc()
+        expect(availableUsdc.toString()).equal(totalReward.toString())
+
+        // add winners to get half of the expected reward
+        await raffle
+            .connect(delegate)
+            .finalizeRaffle(
+                RAFFLE_ID,
+                [winner1.address, winner2.address],
+                [reward1.div(2), reward2.div(2)],
+                totalReward.div(2)
+            )
+
+        const availableUsdcAfter = await raffle.getAvailableUsdc()
+        expect(availableUsdcAfter.toString()).equal(totalReward.div(2).toString())
+
+        // add winners to expect the other half making the available usdc = 0
+        await raffle
+            .connect(delegate)
+            .finalizeRaffle(
+                RAFFLE_ID_2,
+                [winner1.address, winner2.address],
+                [reward1.div(2), reward2.div(2)],
+                totalReward.div(2)
+            )
+
+        const availableUsdcAfterSecoundRaffle = await raffle.getAvailableUsdc()
+        expect(availableUsdcAfterSecoundRaffle.toString()).equal('0')
+    })
+
+    it('should allow the owner to finalize a raffle and winners to claim', async function () {
+        await usdc.connect(delegate).transfer(raffle.address, totalReward)
         await raffle
             .connect(delegate)
             .finalizeRaffle(RAFFLE_ID, [winner1.address, winner2.address], [reward1, reward2], totalReward)
-
         const claimable = await raffle.getClaimable(winner1.address, RAFFLE_ID)
         expect(claimable.eq(reward1)).to.be.true
-
         // initial USDC balance should be 0
         const balanceBefore = await usdc.balanceOf(winner1.address)
         expect(balanceBefore.eq('0'))
         await raffle.connect(winner1).claim(RAFFLE_ID)
-
         // Balance after claiming should be equal to reward1
         const balanceAfter = await usdc.balanceOf(winner1.address)
         expect(balanceAfter.eq(reward1))
-
         // the user should not be able to claim again for the same RAFFLE_ID
         try {
             await raffle.connect(winner1).claim(RAFFLE_ID)
@@ -66,7 +99,7 @@ describe('RafflePayout', function () {
     })
 
     it('should prevent non-winners from claiming', async function () {
-        await usdc.connect(delegate).approve(raffle.address, totalReward)
+        await usdc.connect(delegate).transfer(raffle.address, totalReward)
 
         await raffle.connect(delegate).finalizeRaffle(RAFFLE_ID, [winner1.address], [reward1], reward1)
 
@@ -79,7 +112,7 @@ describe('RafflePayout', function () {
     })
 
     it('should allow owner to reclaim unclaimed funds after 30 days', async function () {
-        await usdc.connect(delegate).approve(raffle.address, totalReward)
+        await usdc.connect(delegate).transfer(raffle.address, totalReward)
 
         await raffle
             .connect(delegate)
@@ -104,7 +137,7 @@ describe('RafflePayout', function () {
     })
 
     it('should prevent claims after deadline', async function () {
-        await usdc.connect(delegate).approve(raffle.address, reward1)
+        await usdc.connect(delegate).transfer(raffle.address, reward1)
         await raffle.connect(delegate).finalizeRaffle(RAFFLE_ID, [winner1.address], [reward1], reward1)
 
         await ethers.provider.send('evm_increaseTime', [CLAIM_DURATION + 1])
