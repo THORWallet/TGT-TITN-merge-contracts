@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/RafflePayout.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.22;\n\ninterface IERC20 {\n    function transfer(address recipient, uint256 amount) external returns (bool);\n    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\n    function balanceOf(address account) external view returns (uint256);\n}\n\ncontract RafflePayout {\n    address public owner;\n    address public delegate; // can submit raffle winners (call the finalizeRaffle function)\n    IERC20 public usdc;\n    uint256 public constant CLAIM_DURATION = 30 days;\n    uint256 public lockedAmount; // USDC reserved to winners\n\n    struct Raffle {\n        uint256 totalAmount;\n        uint256 timestamp;\n        bool finalized;\n        mapping(address => uint256) winners; // winner => amount\n        mapping(address => bool) claimed;\n    }\n\n    mapping(uint256 => Raffle) private raffles;\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not owner\");\n        _;\n    }\n\n    modifier onlyOwnerOrDelegate() {\n        require(msg.sender == owner || msg.sender == delegate, \"Not authorized\");\n        _;\n    }\n\n    function setDelegate(address _delegate) external onlyOwner {\n        delegate = _delegate;\n    }\n\n    event RaffleFinalized(uint256 indexed raffleId, uint256 totalAmount, uint256 timestamp);\n    event Claimed(address indexed winner, uint256 indexed raffleId, uint256 amount);\n    event ExpiredFundsRecovered(uint256 indexed raffleId, uint256 amount);\n    event TokensWithdrawn(address token, uint256 amount);\n    event ETHWithdrawn(uint256 amount);\n\n    constructor(address _usdc) {\n        owner = msg.sender;\n        usdc = IERC20(_usdc);\n    }\n\n    function finalizeRaffle(\n        uint256 raffleId,\n        address[] calldata winners,\n        uint256[] calldata amounts,\n        uint256 totalAmount\n    ) external onlyOwnerOrDelegate {\n        require(!raffles[raffleId].finalized, \"Already finalized\");\n        require(winners.length == amounts.length, \"Length mismatch\");\n\n        require(usdc.balanceOf(address(this)) >= lockedAmount + totalAmount, \"Insufficient available USDC in contract\");\n\n        Raffle storage raffle = raffles[raffleId];\n        raffle.totalAmount = totalAmount;\n        raffle.timestamp = block.timestamp;\n        raffle.finalized = true;\n\n        for (uint i = 0; i < winners.length; i++) {\n            require(winners[i] != address(0), \"Zero address\");\n            require(amounts[i] > 0, \"Zero amount\");\n            raffle.winners[winners[i]] = amounts[i];\n        }\n\n        lockedAmount += totalAmount;\n\n        emit RaffleFinalized(raffleId, totalAmount, block.timestamp);\n    }\n\n    function claim(uint256 raffleId) external {\n        Raffle storage raffle = raffles[raffleId];\n        require(raffle.finalized, \"Not finalized\");\n        require(block.timestamp <= raffle.timestamp + CLAIM_DURATION, \"Claim period expired\");\n\n        uint256 amount = raffle.winners[msg.sender];\n        require(amount > 0, \"Not a winner\");\n        require(!raffle.claimed[msg.sender], \"Already claimed\");\n\n        raffle.claimed[msg.sender] = true;\n        require(usdc.transfer(msg.sender, amount), \"USDC transfer failed\");\n\n        lockedAmount -= amount;\n\n        emit Claimed(msg.sender, raffleId, amount);\n    }\n\n    function recoverExpiredFunds(uint256 raffleId, address[] calldata unclaimedWinners) external onlyOwner {\n        Raffle storage raffle = raffles[raffleId];\n        require(raffle.finalized, \"Not finalized\");\n        require(block.timestamp > raffle.timestamp + CLAIM_DURATION, \"Claim period not expired\");\n\n        uint256 reclaimed;\n\n        for (uint i = 0; i < unclaimedWinners.length; i++) {\n            address winner = unclaimedWinners[i];\n            if (!raffle.claimed[winner] && raffle.winners[winner] > 0) {\n                uint256 amount = raffle.winners[winner];\n                raffle.claimed[winner] = true; // mark as claimed to prevent later access\n                reclaimed += amount;\n            }\n        }\n\n        if (reclaimed > 0) {\n            require(usdc.transfer(owner, reclaimed), \"USDC refund failed\");\n            lockedAmount -= reclaimed;\n            emit ExpiredFundsRecovered(raffleId, reclaimed);\n        }\n    }\n\n    function getClaimable(address user, uint256 raffleId) external view returns (uint256) {\n        Raffle storage raffle = raffles[raffleId];\n        if (!raffle.finalized || raffle.claimed[user]) return 0;\n        if (block.timestamp > raffle.timestamp + CLAIM_DURATION) return 0;\n        return raffle.winners[user];\n    }\n\n    function updateOwner(address newOwner) external onlyOwner {\n        require(newOwner != address(0), \"Invalid new owner\");\n        owner = newOwner;\n    }\n\n    function getAvailableUsdc() external view returns (uint256) {\n        uint256 balance = usdc.balanceOf(address(this));\n        return balance > lockedAmount ? balance - lockedAmount : 0;\n    }\n\n    function withdrawTokens(address _token) external onlyOwner {\n        require(_token != address(usdc), \"Cannot withdraw primary token\");\n        IERC20 otherToken = IERC20(_token);\n        uint256 balance = otherToken.balanceOf(address(this));\n        require(balance > 0, \"No tokens to withdraw\");\n        otherToken.transfer(owner, balance);\n        emit TokensWithdrawn(_token, balance);\n    }\n\n    function withdrawETH() external onlyOwner {\n        uint256 balance = address(this).balance;\n        require(balance > 0, \"No ETH to withdraw\");\n        payable(owner).transfer(balance);\n        emit ETHWithdrawn(balance);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
