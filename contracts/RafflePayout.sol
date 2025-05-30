@@ -41,6 +41,8 @@ contract RafflePayout {
     event RaffleFinalized(uint256 indexed raffleId, uint256 totalAmount, uint256 timestamp);
     event Claimed(address indexed winner, uint256 indexed raffleId, uint256 amount);
     event ExpiredFundsRecovered(uint256 indexed raffleId, uint256 amount);
+    event TokensWithdrawn(address token, uint256 amount);
+    event ETHWithdrawn(uint256 amount);
 
     constructor(address _usdc) {
         owner = msg.sender;
@@ -129,5 +131,21 @@ contract RafflePayout {
     function getAvailableUsdc() external view returns (uint256) {
         uint256 balance = usdc.balanceOf(address(this));
         return balance > lockedAmount ? balance - lockedAmount : 0;
+    }
+
+    function withdrawTokens(address _token) external onlyOwner {
+        require(_token != address(usdc), "Cannot withdraw primary token");
+        IERC20 otherToken = IERC20(_token);
+        uint256 balance = otherToken.balanceOf(address(this));
+        require(balance > 0, "No tokens to withdraw");
+        otherToken.transfer(owner, balance);
+        emit TokensWithdrawn(_token, balance);
+    }
+
+    function withdrawETH() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No ETH to withdraw");
+        payable(owner).transfer(balance);
+        emit ETHWithdrawn(balance);
     }
 }
