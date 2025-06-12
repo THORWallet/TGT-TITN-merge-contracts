@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/USDCBridge.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ninterface ITokenMessengerV2 {\n    function depositForBurn(\n        uint256 amount,\n        uint32 destinationDomain,\n        bytes32 mintRecipient,\n        address burnToken\n    ) external returns (uint64 nonce);\n}\n\ninterface IMessageTransmitterV2 {\n    function receiveMessage(bytes calldata message, bytes calldata attestation) external returns (bool);\n}\n\ncontract USDCBridge {\n    address public immutable tokenMessenger;\n    address public immutable messageTransmitter;\n    address public immutable burnToken; // The USDC token address\n    uint32 public immutable destinationDomain; // e.g., Base = 1650553709\n    bytes32 public destinationAddress; // 32-byte representation of the target address\n    address public owner;\n\n    event BridgeInitiated(uint64 indexed nonce, address indexed from, uint256 amount);\n    event DestinationUpdated(bytes32 newDestination);\n    event OwnerUpdated(address newOwner);\n    event EmergencyWithdrawal(address indexed owner, uint256 usdcAmount, uint256 ethAmount);\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not authorized\");\n        _;\n    }\n\n    constructor(\n        address _tokenMessenger,\n        address _messageTransmitter,\n        address _burnToken,\n        uint32 _destinationDomain,\n        bytes32 _destinationAddress\n    ) {\n        tokenMessenger = _tokenMessenger;\n        messageTransmitter = _messageTransmitter;\n        burnToken = _burnToken;\n        destinationDomain = _destinationDomain;\n        destinationAddress = _destinationAddress;\n        owner = msg.sender;\n    }\n\n    function bridgeUSDC() external onlyOwner {\n        uint256 amount = IERC20(burnToken).balanceOf(address(this));\n        require(amount > 0, \"No USDC to bridge\");\n\n        require(IERC20(burnToken).approve(tokenMessenger, amount), \"Approve failed\");\n\n        uint64 nonce = ITokenMessengerV2(tokenMessenger).depositForBurn(\n            amount,\n            destinationDomain,\n            destinationAddress,\n            burnToken\n        );\n\n        emit BridgeInitiated(nonce, msg.sender, amount);\n    }\n\n    function setDestination(bytes32 _newDestination) external onlyOwner {\n        require(_newDestination != bytes32(0), \"Invalid destination\");\n        destinationAddress = _newDestination;\n        emit DestinationUpdated(_newDestination);\n    }\n\n    function setOwner(address _newOwner) external onlyOwner {\n        require(_newOwner != address(0), \"Invalid owner address\");\n        owner = _newOwner;\n        emit OwnerUpdated(_newOwner);\n    }\n\n    function emergencyWithdraw() external onlyOwner {\n        uint256 usdcBalance = IERC20(burnToken).balanceOf(address(this));\n        uint256 ethBalance = address(this).balance;\n\n        if (usdcBalance > 0) {\n            require(IERC20(burnToken).transfer(owner, usdcBalance), \"USDC transfer failed\");\n        }\n\n        if (ethBalance > 0) {\n            (bool success, ) = payable(owner).call{ value: ethBalance }(\"\");\n            require(success, \"ETH transfer failed\");\n        }\n\n        emit EmergencyWithdrawal(owner, usdcBalance, ethBalance);\n    }\n\n    receive() external payable {}\n}\n\ninterface IERC20 {\n    function approve(address spender, uint256 amount) external returns (bool);\n    function transfer(address to, uint256 amount) external returns (bool);\n    function balanceOf(address account) external view returns (uint256);\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
