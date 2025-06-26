@@ -2,6 +2,9 @@ import axios from 'axios'
 import hre from 'hardhat'
 
 // RUN: npx hardhat run scripts/bridgeUSDC.ts --network arbitrumOne
+// COMPILE & RUN on PM2:
+// 1. npx tsc scripts/bridgeUSDC.ts --outDir dist/
+// 2. pm2 start dist/bridgeUSDC.js --name bridge-watcher
 
 // see: https://developers.circle.com/stablecoins/evm-smart-contracts#tokenmessenger-mainnet
 const TOKEN_MESSENGER = '0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca'
