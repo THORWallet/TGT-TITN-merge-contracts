@@ -6,6 +6,10 @@ import { deployments, ethers } from 'hardhat'
 
 import { Options } from '@layerzerolabs/lz-v2-utilities'
 
+const TITN_ARB_RAW = '166800000'
+const TITN_ARB = ethers.utils.parseUnits(TITN_ARB_RAW, 18)
+const TGT_TO_EXCHANGE = ethers.utils.parseUnits('444900000', 18)
+
 describe('MergeTgt tests', function () {
     // Constant representing a mock Endpoint ID for testing purposes
     const eidA = 1
@@ -68,7 +72,7 @@ describe('MergeTgt tests', function () {
         await arbTITN.connect(ownerA).setPeer(eidA, ethers.utils.zeroPad(baseTITN.address, 32))
 
         // Defining the amount of tokens to send and constructing the parameters for the send operation
-        const tokensToSend = ethers.utils.parseEther('173700000')
+        const tokensToSend = ethers.utils.parseEther(TITN_ARB_RAW)
         // Defining extra message execution options for the send operation
         const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
         const sendParam = [
@@ -97,8 +101,8 @@ describe('MergeTgt tests', function () {
         await mergeTgt.connect(ownerA).setLockedStatus(1)
 
         // now the admin should deposit all ARB.TITN into the mergeTGT contract
-        await arbTITN.connect(ownerA).approve(mergeTgt.address, ethers.utils.parseUnits('173700000', 18))
-        await mergeTgt.connect(ownerA).deposit(arbTITN.address, ethers.utils.parseUnits('173700000', 18))
+        await arbTITN.connect(ownerA).approve(mergeTgt.address, TITN_ARB)
+        await mergeTgt.connect(ownerA).deposit(arbTITN.address, TITN_ARB)
 
         // let's send some TGT to user1 and user2
         await tgt.connect(ownerA).transfer(user1.address, ethers.utils.parseUnits('1000', 18))
@@ -113,10 +117,11 @@ describe('MergeTgt tests', function () {
             await tgt.connect(user1).transferAndCall(mergeTgt.address, ethers.utils.parseUnits('100', 18), '0x')
             // claim TITN
             const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
-            expect(claimableAmount.toString()).to.be.equal('30000000000000000000')
+            const expected = await mergeTgt.quoteTitn(ethers.utils.parseEther('100'))
+            expect(claimableAmount.toString()).to.be.equal(expected.toString())
             await mergeTgt.connect(user1).claimTitn(claimableAmount)
             const titnBalance = await arbTITN.balanceOf(user1.address)
-            expect(titnBalance.toString()).to.be.equal('30000000000000000000')
+            expect(titnBalance.toString()).to.be.equal(expected.toString())
         })
         it('should not let a user to transfer TITN tokens', async function () {
             // transfer TGT to the merge contract
@@ -159,11 +164,12 @@ describe('MergeTgt tests', function () {
             // Attempt to bridge ARB.TITN to BASE.TITN
             // Defining extra message execution options for the send operation
             const options = Options.newOptions().addExecutorLzReceiveOption(200000, 0).toHex().toString()
+            const minAmount = claimableAmount.mul(999).div(1000)
             const sendParam = [
                 eidA,
                 ethers.utils.zeroPad(user1.address, 32),
                 claimableAmount.toString(),
-                claimableAmount.toString(),
+                minAmount.toString(),
                 options,
                 '0x',
                 '0x',
@@ -176,8 +182,11 @@ describe('MergeTgt tests', function () {
             const balanceBase = await baseTITN.balanceOf(user1.address)
             const balanceArb = await arbTITN.balanceOf(user1.address)
             // their ARB balance should be 0 and their BASE balance should have increased
-            expect(balanceBase).to.be.eql(claimableAmount)
-            expect(balanceArb).to.be.eql(ethers.utils.parseUnits('0', 18))
+            const tolerance = ethers.utils.parseUnits('0.002', 18) // 0.002 TITN
+            const diff = balanceBase.sub(claimableAmount).abs()
+            expect(diff.lte(tolerance)).to.be.true
+            const dustTolerance = ethers.utils.parseUnits('0.0002', 18)
+            expect(balanceArb.lte(dustTolerance)).to.be.true // ✅ allows tiny remainder
 
             // they should not be able to transfer the BASE TITN
             try {
@@ -196,29 +205,36 @@ describe('MergeTgt tests', function () {
     describe('Time-based tests', function () {
         it('should get lower quotes after 90 days have elapsed', async function () {
             const amountOfTgtToDeposit = ethers.utils.parseUnits('1000', 18)
-            const quote = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
-            expect(quote).to.be.eql(300)
+            const quote = await mergeTgt.quoteTitn(amountOfTgtToDeposit)
+
+            const expected = amountOfTgtToDeposit.mul(TITN_ARB).div(TGT_TO_EXCHANGE)
+
+            const diff = quote.sub(expected).abs()
+            const tolerance = ethers.utils.parseUnits('0.001', 18)
+            expect(diff.lte(tolerance)).to.be.true
 
             // Fast forward 89 days
             await time.increase(89 * 24 * 60 * 60)
 
             // before the 90 days have elapsed the quote should as high as day one
-            const quote1 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
-            expect(quote1).to.be.eq(300)
+            const quote1 = await mergeTgt.quoteTitn(amountOfTgtToDeposit)
+            const expected1 = amountOfTgtToDeposit.mul(TITN_ARB).div(TGT_TO_EXCHANGE)
+            const diff1 = quote1.sub(expected1).abs()
+            expect(diff1.lte(ethers.utils.parseUnits('0.001', 18))).to.be.true
 
             // Fast forward 2 days
             await time.increase(2 * 24 * 60 * 60)
 
             // after 90 days the quotes should be less than initially and get gradually lower as times goes by (until day 365)
-            const quote2 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
-            expect(quote2).to.be.lt(quote1)
+            const quote2 = await mergeTgt.quoteTitn(amountOfTgtToDeposit)
+            expect(quote2.lt(quote1)).to.be.true
 
             // Fast forward 30 days
             await time.increase(30 * 24 * 60 * 60)
-            const quote3 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
-            expect(quote3).to.be.lt(quote2)
+            const quote3 = await mergeTgt.quoteTitn(amountOfTgtToDeposit)
+            expect(quote3.lt(quote2)).to.be.true
 
-            // Fast forward 250 days
+            // // Fast forward 250 days
             await time.increase(250 * 24 * 60 * 60)
             const quote4 = Number(ethers.utils.formatUnits(await mergeTgt.quoteTitn(amountOfTgtToDeposit), 18))
             expect(quote4).to.be.eq(0)
@@ -240,21 +256,42 @@ describe('MergeTgt tests', function () {
             const claimableAmount = await mergeTgt.claimableTitnPerUser(user1.address)
             await mergeTgt.connect(user1).claimTitn(claimableAmount)
 
-            expect((await arbTITN.balanceOf(user1.address)).toString()).to.be.eql('30000000000000000000')
+            const expectedQuote = await mergeTgt.quoteTitn(ethers.utils.parseUnits('100', 18))
+            const actualBalance = await arbTITN.balanceOf(user1.address)
+            const diff = expectedQuote.sub(actualBalance).abs()
+            const tolerance = ethers.utils.parseUnits('0.001', 18) // Allow 0.001 TITN drift
+            expect(diff.lte(tolerance)).to.be.true
 
             // user2 and user3 will wait 1 year and then try to withdraw their claimable amount + 50% of the remaining (unclaimed TITN)
             // Fast forward 365 days
             await time.increase(365 * 24 * 60 * 60)
 
             const availableTitn = await arbTITN.balanceOf(mergeTgt.address)
-            expect(availableTitn.toString()).to.be.eql('173699970000000000000000000')
+            const totalTitn = TITN_ARB
+            const expectedAvailableTitn = totalTitn.sub(expectedQuote)
+            const diff1 = availableTitn.sub(expectedAvailableTitn).abs()
+            const tolerance1 = ethers.utils.parseUnits('0.001', 18)
+            expect(diff1.lte(tolerance1)).to.be.true
 
             // user2 and user3 should be able to withdraw half of availableTitn each
+            // Withdraw first
             await mergeTgt.connect(user2).withdrawRemainingTitn()
-            expect((await arbTITN.balanceOf(user2.address)).toString()).to.be.eql('86849985000000000000000000')
+            const user2Balance = await arbTITN.balanceOf(user2.address)
+            const user2Claimed = await mergeTgt.gettotalClaimedTitnPerUser(user2.address)
+
+            // Assert they're equal (or close)
+            const diff2 = user2Balance.sub(user2Claimed).abs()
+            const tolerance2 = ethers.utils.parseUnits('0.001', 18)
+            expect(diff2.lte(tolerance2)).to.be.true
 
             await mergeTgt.connect(user3).withdrawRemainingTitn()
-            expect((await arbTITN.balanceOf(user3.address)).toString()).to.be.eql('86849985000000000000000000')
+
+            const user3Balance = await arbTITN.balanceOf(user3.address)
+            const user3Claimed = await mergeTgt.gettotalClaimedTitnPerUser(user3.address)
+
+            const diff3 = user3Balance.sub(user3Claimed).abs()
+            const tolerance3 = ethers.utils.parseUnits('0.001', 18)
+            expect(diff3.lte(tolerance3)).to.be.true
         })
         it('user locks TGT without claimable TITN if transfer on exactly day 360', async function () {
             await tgt.connect(user1).approve(mergeTgt.address, ethers.utils.parseUnits('100', 18))

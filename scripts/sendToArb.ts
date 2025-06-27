@@ -10,7 +10,7 @@ async function main() {
     console.log(`Network: ${hre.network.name}`)
 
     // PARAMS
-    const BRIDGE_AMOUNT = '173700000' // amount that we'll let users bridge to TITN back
+    const BRIDGE_AMOUNT = '166800000' // amount that we'll let users bridge to TITN back
     const TO_ADDRESS = '0x5166ef11e5dF6D4Ca213778fFf4756937e469663' // MergeTGT contract address (or admin address)
     const GAS_LIMIT = 1000000 // Gas limit for the executor
     const MSG_VALUE = 0 // msg.value for the lzReceive() function on destination in wei

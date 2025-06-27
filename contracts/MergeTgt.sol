@@ -14,8 +14,8 @@ contract MergeTgt is IMerge, Ownable, ReentrancyGuard {
     IERC20 public immutable tgt;
     IERC20 public immutable titn;
 
-    uint256 public constant TGT_TO_EXCHANGE = 579_000_000 * 10 ** 18; // 57.9% of MAX_TGT
-    uint256 public constant TITN_ARB = 173_700_000 * 10 ** 18; // 17.37% of MAX_TITN
+    uint256 public constant TGT_TO_EXCHANGE = 444_900_000 * 10 ** 18; // 44.49% of MAX_TGT
+    uint256 public constant TITN_ARB = 166_800_000 * 10 ** 18; // 16.68% of MAX_TITN
     uint256 public launchTime;
 
     mapping(address => uint256) public claimedTitnPerUser;
