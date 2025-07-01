@@ -13,7 +13,7 @@ async function main() {
     const iface = new ethers.utils.Interface(['function initialize(address,address,uint256)'])
     const data = iface.encodeFunctionData('initialize', [
         '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // _rewardToken USDC on Base
-        '0xCF23e5020497cE7129c02041FCceF9A0BA5e6554', // _feeCollector
+        '0xCE23F3637575bdb1330f1A1Cf312A45964a8497c', // _feeCollector
         '0', // _depositFeePercent
     ])
     console.log(data)

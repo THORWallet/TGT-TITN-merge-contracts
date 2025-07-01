@@ -9,14 +9,14 @@ This repository contains the contracts for deploying TITN on both the BASE and A
 - BASE.TITN: `0xf72EC6551A98fE12B53f7c767AABF1aD57bB6DA1` [explorer](https://basescan.org/token/0xf72EC6551A98fE12B53f7c767AABF1aD57bB6DA1#code)
 - ARB.TITN: `0x2923b8ea6530FB0c9516f50Cd334e18d122ADAd3` [explorer](https://arbiscan.io/token/0x2923b8ea6530FB0c9516f50Cd334e18d122ADAd3#code)
 - ARB.MergeTGT: `0x22EAafe4004225c670C8A8007887DC0a9433bd86` [explorer](https://arbiscan.io/address/0x22EAafe4004225c670C8A8007887DC0a9433bd86#code)
-- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code) 
+- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code)
 
 ### Production
 
-- BASE.TITN: 
+- BASE.TITN:
 - ARB.TITN:
 - ARB.MergeTGT:
-- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code) 
+- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code)
 
 ## Overview
 
@@ -58,7 +58,7 @@ The contracts include a transfer restriction mechanism controlled by the isBridg
 
 ### Setup on BASE
 
-1. Bridge 173700000 TITN to Arbitrum: `npx hardhat run scripts/sendToArb.ts --network base`
+1. Bridge 166800000 TITN to Arbitrum: `npx hardhat run scripts/sendToArb.ts --network base`
 
 ### Setup on ARBITRUM
 
@@ -79,6 +79,13 @@ These are the steps a user would take to merge and bridge tokens (from ARB.TGT t
 
 1. run `BRIDGE_AMOUNT=10 TO_ADDRESS=0x5166ef11e5dF6D4Ca213778fFf4756937e469663 npx hardhat run scripts/quote.ts --network arbitrumOne`
 2. with those params call the `send()` function in the ARB.TITN contract
+
+### Staking Contract
+
+1. This is deployed via Remix due to incompatible dependencies
+2. First deploy the `ProxyAdmin` contract, then the `TitnStaking` contract and finally the `TransparentUpgradeableProxy` contract
+3. For the `TransparentUpgradeableProxy` you'll need to run `npx hardhat run scripts/stakingProxyData.ts` to get the `bytes` input field data
+4. Once deployed head over to the `titn` on BASE contract and call `setTransferAllowedContract` providing the address of the `TransparentUpgradeableProxy` contract.
 
 ## LayerZero Docs
 

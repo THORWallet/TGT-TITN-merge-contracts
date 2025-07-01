@@ -22,7 +22,7 @@ const deploy: DeployFunction = async (hre) => {
             ? hre.ethers.utils.parseUnits('0', 18)
             : hre.ethers.utils.parseUnits('1000000000', 18) // base
     const args = [
-        'Titn', // name
+        'Titan', // name
         'TITN', // symbol
         endpointV2Deployment.address, // LayerZero's EndpointV2 address
         deployer, // owner

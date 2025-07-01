@@ -8,7 +8,7 @@ async function main() {
     console.log(`Network: ${hre.network.name}`)
 
     // PARAMS
-    const TITN_DEPOSIT_AMOUNT = '173700000000000000000000000' // this amount will be depoisted on the mergeTgt contract
+    const TITN_DEPOSIT_AMOUNT = '166800000000000000000000000' // this amount will be depoisted on the mergeTgt contract
 
     // Initialize contract
     const deploymentTitn = await deployments.get('Titn')

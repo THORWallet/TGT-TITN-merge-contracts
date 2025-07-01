@@ -11,7 +11,7 @@ async function main() {
 
     // PARAMS
     const BRIDGE_AMOUNT = '166800000' // amount that we'll let users bridge to TITN back
-    const TO_ADDRESS = '0x5166ef11e5dF6D4Ca213778fFf4756937e469663' // MergeTGT contract address (or admin address)
+    const TO_ADDRESS = '0xCE23F3637575bdb1330f1A1Cf312A45964a8497c' // admin address
     const GAS_LIMIT = 1000000 // Gas limit for the executor
     const MSG_VALUE = 0 // msg.value for the lzReceive() function on destination in wei
 
