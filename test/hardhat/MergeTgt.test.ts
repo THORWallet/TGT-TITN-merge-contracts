@@ -8,7 +8,7 @@ import { Options } from '@layerzerolabs/lz-v2-utilities'
 
 const TITN_ARB_RAW = '166800000'
 const TITN_ARB = ethers.utils.parseUnits(TITN_ARB_RAW, 18)
-const TGT_TO_EXCHANGE = ethers.utils.parseUnits('444900000', 18)
+const TGT_TO_EXCHANGE = ethers.utils.parseUnits('444800000', 18)
 
 describe('MergeTgt tests', function () {
     // Constant representing a mock Endpoint ID for testing purposes
