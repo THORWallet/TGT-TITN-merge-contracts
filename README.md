@@ -6,9 +6,9 @@ This repository contains the contracts for deploying TITN on both the BASE and A
 
 ### Test
 
-- BASE.TITN: `0xf72EC6551A98fE12B53f7c767AABF1aD57bB6DA1` [explorer](https://basescan.org/token/0xf72EC6551A98fE12B53f7c767AABF1aD57bB6DA1#code)
-- ARB.TITN: `0x2923b8ea6530FB0c9516f50Cd334e18d122ADAd3` [explorer](https://arbiscan.io/token/0x2923b8ea6530FB0c9516f50Cd334e18d122ADAd3#code)
-- ARB.MergeTGT: `0x22EAafe4004225c670C8A8007887DC0a9433bd86` [explorer](https://arbiscan.io/address/0x22EAafe4004225c670C8A8007887DC0a9433bd86#code)
+- BASE.TITN: `0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06` [explorer](https://basescan.org/token/0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06#code)
+- ARB.TITN: `0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06` [explorer](https://arbiscan.io/token/0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06#code)
+- ARB.MergeTGT: `0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0` [explorer](https://arbiscan.io/address/0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0#code)
 - ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code)
 
 ### Production
