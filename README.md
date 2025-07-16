@@ -4,19 +4,15 @@ This repository contains the contracts for deploying TITN on both the BASE and A
 
 ## Deployed contracts
 
-### Test
+### Production
 
 - BASE.TITN: `0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06` [explorer](https://basescan.org/token/0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06#code)
 - ARB.TITN: `0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06` [explorer](https://arbiscan.io/token/0xe62bfbE57763ec24c0F130426F34DbCe11Fc5B06#code)
 - ARB.MergeTGT: `0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0` [explorer](https://arbiscan.io/address/0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0#code)
 - ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code)
-
-### Production
-
-- BASE.TITN:
-- ARB.TITN:
-- ARB.MergeTGT:
-- ARB.TGT: `0x429fed88f10285e61b12bdf00848315fbdfcc341` [explorer](https://arbiscan.io/address/0x429fed88f10285e61b12bdf00848315fbdfcc341#code)
+- Staking: ProxyAdmin: `0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0` [explorer](https://basescan.org/token/0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0#code)
+- Staking: TitnStaking: `0x2CbeDd08364953f9Ab70A803749eC44C94EF2410` [explorer](https://basescan.org/token/0x2CbeDd08364953f9Ab70A803749eC44C94EF2410#code)
+- Staking: TransparentUpgradeableProxy `0x269E9c0e300dd6c84A38b5781551BF767b2B5327` [explorer](https://basescan.org/token/0x269E9c0e300dd6c84A38b5781551BF767b2B5327#code)
 
 ## Overview
 
