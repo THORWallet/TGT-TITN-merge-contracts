@@ -25,7 +25,7 @@ const deploy: DeployFunction = async (hre) => {
     const usdcAddress = hre.network.name === 'arbitrumOne' ? ARBITRUM_USDC_ADDRESS : BASE_USDC_ADDRESS
     const destinationDomain = hre.network.name === 'arbitrumOne' ? 6 : 3 // if deploying on arbitrum the destination is base therefore it's 6 otherwise it's 3
 
-    const recipient = '0x143A044e497624F46a0f1E35847eCf2400A0d3Df' // splitter contract on Base
+    const recipient = '0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2' // splitter contract on Base
 
     const { address } = await deploy(contractName, {
         from: deployer,

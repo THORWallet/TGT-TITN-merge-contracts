@@ -13,7 +13,7 @@ const MESSAGE_TRANSMITTER = '0xAD09780d193884d503182aD4588450C416D6F9D4'
 const ARBITRUM_USDC = '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
 
 const ABI = ['event MessageSent(bytes message)']
-const BRIDGE_THRESHOLD = '1' // USDC
+const BRIDGE_THRESHOLD = '100' // USDC
 
 async function loop() {
     const { deployments, ethers } = hre

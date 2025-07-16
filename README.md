@@ -15,6 +15,7 @@ This repository contains the contracts for deploying TITN on both the BASE and A
 - Staking: TransparentUpgradeableProxy `0x269E9c0e300dd6c84A38b5781551BF767b2B5327` [explorer](https://basescan.org/token/0x269E9c0e300dd6c84A38b5781551BF767b2B5327#code)
 - RafflePayout: `0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0` [explorer](https://basescan.org/token/0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0#code)
 - 3-Way Splitter: `0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2` [explorer](https://basescan.org/token/0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2#code)
+- USDCBridge: `0x2CbeDd08364953f9Ab70A803749eC44C94EF2410` [explorer](https://arbiscan.io/token/0x2CbeDd08364953f9Ab70A803749eC44C94EF2410#code)
 
 ## Overview
 
@@ -94,6 +95,11 @@ These are the steps a user would take to merge and bridge tokens (from ARB.TGT t
 
 1. Deploy the splitter contract on Base `npx hardhat lz:deploy` > Select Base > Type `ERC20Splitter3Way`
 2. Set up the contract params `npx hardhat run scripts/splitter3WaySetup.ts --network base`
+
+### USDC Bridge Contract
+
+1. Deploy the USDC Bridge contract on Arbitrum `npx hardhat lz:deploy` > Select Arbitrum > Type `USDCBridge`
+2. Run the bot to bridge USDC on arbitrum to Base and send it to the splitter contract
 
 ## LayerZero Docs
 
