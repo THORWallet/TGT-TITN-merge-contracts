@@ -13,6 +13,8 @@ This repository contains the contracts for deploying TITN on both the BASE and A
 - Staking: ProxyAdmin: `0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0` [explorer](https://basescan.org/token/0xfa486b0e67ca52F5F9E5aDf0B79b6CfeB339b6e0#code)
 - Staking: TitnStaking: `0x2CbeDd08364953f9Ab70A803749eC44C94EF2410` [explorer](https://basescan.org/token/0x2CbeDd08364953f9Ab70A803749eC44C94EF2410#code)
 - Staking: TransparentUpgradeableProxy `0x269E9c0e300dd6c84A38b5781551BF767b2B5327` [explorer](https://basescan.org/token/0x269E9c0e300dd6c84A38b5781551BF767b2B5327#code)
+- RafflePayout: `0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0` [explorer](https://basescan.org/token/0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0#code)
+- 3-Way Splitter: `0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2` [explorer](https://basescan.org/token/0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2#code)
 
 ## Overview
 
@@ -82,6 +84,16 @@ These are the steps a user would take to merge and bridge tokens (from ARB.TGT t
 2. First deploy the `ProxyAdmin` contract, then the `TitnStaking` contract and finally the `TransparentUpgradeableProxy` contract
 3. For the `TransparentUpgradeableProxy` you'll need to run `npx hardhat run scripts/stakingProxyData.ts` to get the `bytes` input field data
 4. Once deployed head over to the `titn` on BASE contract and call `setTransferAllowedContract` providing the address of the `TransparentUpgradeableProxy` contract.
+
+### Raffle Payout Contract
+
+1. Deploy the RafflePayout contract `npx hardhat lz:deploy` > Select Base > Type `RafflePayout`
+2. Set the delegate (manually on basescan). The BE should have access to the private key of the delegate (to submit raffle winners)
+
+### Splitter Contract
+
+1. Deploy the splitter contract on Base `npx hardhat lz:deploy` > Select Base > Type `ERC20Splitter3Way`
+2. Set up the contract params `npx hardhat run scripts/splitter3WaySetup.ts --network base`
 
 ## LayerZero Docs
 

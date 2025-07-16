@@ -9,13 +9,13 @@ async function main() {
     console.log(`Network: ${hre.network.name}`)
 
     // PARAMS
-    const ARBITRUM_USDC_ADDRESS = '0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+    const ARBITRUM_USDC_ADDRESS = '0x' // not needed as we only deploy on base
     const BASE_USDC_ADDRESS = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
     const AFFILIATE_ADDRESS = '0x19Dd3215A1C7CA4459d9C9F277654E5D266737dc'
-    const ARBITRUM_STAKING_ADDRESS = '0x6745c897ab1f4fda9f7700e8be6ea2ee03672759'
-    const BASE_STAKING_ADDRESS = '0xe740ACc1e0233109381187db9801BE9a40FEb77C'
-    const BASE_RUFFLE_ADDRESS = BASE_STAKING_ADDRESS // TODO
-    const ARBITRUM_RUFFLE_ADDRESS = ARBITRUM_STAKING_ADDRESS // TODO
+    const ARBITRUM_STAKING_ADDRESS = '0x' // not needed as we only deploy on base
+    const BASE_STAKING_ADDRESS = '0x269E9c0e300dd6c84A38b5781551BF767b2B5327'
+    const BASE_RUFFLE_ADDRESS = '0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0'
+    const ARBITRUM_RUFFLE_ADDRESS = '0x' // not needed as we only deploy on base
 
     // Initialize contract
     const deploymentSplitter = await deployments.get('ERC20Splitter3Way')
@@ -31,9 +31,9 @@ async function main() {
                 hre.network.name === 'arbitrumOne' ? ARBITRUM_STAKING_ADDRESS : BASE_STAKING_ADDRESS,
                 hre.network.name === 'arbitrumOne' ? ARBITRUM_RUFFLE_ADDRESS : BASE_RUFFLE_ADDRESS,
             ],
-            [10, 30, 60]
+            [45, 50, 5]
         )
-        console.log(`2/2 splitter.setRecipients([affiliateAddress, stakingAddress], [10, 30, 60]) ✅`)
+        console.log(`2/2 splitter.setRecipients([affiliateAddress, stakingAddress, raffle], [45, 50, 5]) ✅`)
 
         console.log(`Splitter setup steps completed`)
     } catch (err) {
