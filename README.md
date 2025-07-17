@@ -16,6 +16,7 @@ This repository contains the contracts for deploying TITN on both the BASE and A
 - RafflePayout: `0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0` [explorer](https://basescan.org/token/0x583ecd462E6a8f3bBBa71eC3A3AaB53a7b6C01C0#code)
 - 3-Way Splitter: `0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2` [explorer](https://basescan.org/token/0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2#code)
 - USDCBridge: `0x2CbeDd08364953f9Ab70A803749eC44C94EF2410` [explorer](https://arbiscan.io/token/0x2CbeDd08364953f9Ab70A803749eC44C94EF2410#code)
+- TitnVesting (3 years, starting 01/08/2025) `0x057a90B67889F6bA6f4546504c8B2162A883a956` [explorer](https://basescan.org/token/0x057a90B67889F6bA6f4546504c8B2162A883a956#code)
 
 ## Overview
 
