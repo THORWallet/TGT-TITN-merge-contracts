@@ -25,9 +25,9 @@ async function main() {
         await mergeTgt.setLockedStatus(1)
         console.log(`3/5 mergeTgt.setLockedStatus(1) ✅`)
         await titn.approve(deploymentMergeTgt.address, TITN_DEPOSIT_AMOUNT)
-        console.log(`4/5 titn.approve(mergeTgt, 173.7m TITN) ✅`)
+        console.log(`4/5 titn.approve(mergeTgt, 166.8m TITN) ✅`)
         await mergeTgt.deposit(deploymentTitn.address, TITN_DEPOSIT_AMOUNT)
-        console.log(`5/5 mergeTgt.deposit(titn, 173.7m) ✅`)
+        console.log(`5/5 mergeTgt.deposit(titn, 166.8m) ✅`)
 
         console.log(`Arbitrum setup steps completed`)
     } catch (err) {
