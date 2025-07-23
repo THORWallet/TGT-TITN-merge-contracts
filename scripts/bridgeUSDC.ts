@@ -1,5 +1,7 @@
 import axios from 'axios'
 import hre from 'hardhat'
+import { sendSlackMessage } from './utils/slack'
+import { displayNumber } from './utils/display-number'
 
 // RUN: npx hardhat run scripts/bridgeUSDC.ts --network arbitrumOne
 // COMPILE & RUN on PM2:
@@ -45,7 +47,7 @@ async function loop() {
 
             if (balance.gte(bridgeThreshold)) {
                 console.log('🚀 Threshold met, triggering bridge flow')
-                await handleBridgeFlow(bridge, usdc, signer, ethers)
+                await handleBridgeFlow(bridge, usdc, signer, ethers, Number(readable))
             } else {
                 console.log('🕒 Threshold not met, checking again in 60 seconds...')
             }
@@ -57,13 +59,16 @@ async function loop() {
     }
 }
 
-async function handleBridgeFlow(bridge: any, usdc: any, signer: any, ethers: any) {
+async function handleBridgeFlow(bridge: any, usdc: any, signer: any, ethers: any, amount: number) {
     try {
         console.log(`Initialising bridge`)
         const tx = await bridge.connect(signer).bridgeUSDC()
         const receipt = await tx.wait()
 
         console.log('✅ Bridge initiated')
+        await sendSlackMessage(
+            `🌈 ARB->BASE USDC Bridge initialised for \`${displayNumber(amount.toFixed(0), false, true)} USDC\` | <https://arbiscan.io/tx/${tx.hash}|TX>`
+        )
 
         // Optional: get your own event if needed
         const event = receipt.events?.find((e: any) => e.event === 'BridgeInitiated')
@@ -80,12 +85,14 @@ async function handleBridgeFlow(bridge: any, usdc: any, signer: any, ethers: any
         const receiveFunds = await receiveMessage(attestation, msg.message, ethers)
 
         console.log(`Bridge completed`, receiveFunds)
-    } catch (err) {
+        await sendSlackMessage(`🌈 Bridge completed ✅ | <https://arbiscan.io/tx/${tx.hash}|TX>`)
+    } catch (err: any) {
         console.error('Bridge failed 🛑', err)
+        await sendSlackMessage(`🌈🛑 Bridge failed: ${err.msg}`)
     }
 }
 
-const receiveMessage = async (attestation: string, message: string, ethers: any): Promise<boolean> => {
+const receiveMessage = async (attestation: string, message: string, ethers: any): Promise<string | false> => {
     try {
         const provider = new ethers.providers.JsonRpcProvider('https://mainnet.base.org')
         const privateKey = process.env.PRIVATE_KEY
@@ -107,7 +114,7 @@ const receiveMessage = async (attestation: string, message: string, ethers: any)
         await tx.wait()
 
         console.log(`✅ Message successfully received on Base! TX hash: ${tx.hash}`)
-        return true
+        return tx.hash
     } catch (e: any) {
         console.log('receiveMessage failed', e.message)
         return false
