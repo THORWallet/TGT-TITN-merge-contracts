@@ -57,7 +57,7 @@ async function loop() {
 async function distributeRewards(splitter: any, amount: number, signer: any) {
     try {
         console.log(`Initialising distribution`)
-        const tx = await splitter.connect(signer).bridgeUSDC()
+        const tx = await splitter.connect(signer).distribute()
         await tx.wait()
 
         await sendSlackMessage(
