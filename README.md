@@ -106,3 +106,7 @@ These are the steps a user would take to merge and bridge tokens (from ARB.TGT t
 
 - https://github.com/LayerZero-Labs/devtools/tree/main/examples/oft
 - https://docs.layerzero.network/
+
+## BOTS
+
+On a server run `pm2 start ecosystem.config.js` to run the Splitter + USDC Bridge bots.
