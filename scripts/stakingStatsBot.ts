@@ -45,6 +45,7 @@ async function loop() {
     let baseTitnStakedAmount = 72137832
     let arbTitnInMergeAmount = 139351994
     let arbTgtInMergeAmount = 89133924
+    let tgtMergedPercent = 20
 
     while (true) {
         try {
