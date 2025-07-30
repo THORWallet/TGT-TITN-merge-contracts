@@ -68,7 +68,7 @@ describe('TitnVesting logic tests', function () {
         await baseTITN.connect(ownerA).setPeer(eidB, ethers.utils.zeroPad(arbTITN.address, 32))
         await arbTITN.connect(ownerA).setPeer(eidA, ethers.utils.zeroPad(baseTITN.address, 32))
 
-        TitnVesting = await ethers.getContractFactory('TitnVesting')
+        TitnVesting = await ethers.getContractFactory('TitnVestingWithCancel')
         const now = await time.latest()
         startTimestamp = now + 100 // 100 seconds in the future
 
@@ -128,5 +128,79 @@ describe('TitnVesting logic tests', function () {
 
         const remaining = await vesting.vestedBalanceOf(user1.address)
         expect(remaining).to.equal(vestedAmount.sub(claimable))
+    })
+
+    it('should revert if non-owner tries to cancel vesting', async () => {
+        const vestedAmount = ethers.utils.parseEther('100')
+        await baseTITN.connect(ownerA).transfer(vesting.address, vestedAmount)
+        await vesting.connect(ownerA).vest([user1.address], [vestedAmount])
+
+        await expect(vesting.connect(user1).cancel(user1.address)).to.be.revertedWith('Vesting: not the owner')
+    })
+
+    it('should revert if trying to cancel non-existent vesting', async () => {
+        await expect(vesting.connect(ownerA).cancel(user1.address)).to.be.revertedWith(
+            'Vesting: no active vesting for this account'
+        )
+    })
+
+    it('should correctly handle cancel when fully vested (no unvested refund)', async () => {
+        const vestedAmount = ethers.utils.parseEther('100')
+        await baseTITN.connect(ownerA).transfer(vesting.address, vestedAmount)
+        await vesting.connect(ownerA).vest([user1.address], [vestedAmount])
+
+        // Fast forward past full vesting duration
+        const timeUntilStart = startTimestamp - (await time.latest()) + 1
+        await time.increase(timeUntilStart + defaultDuration + 1)
+
+        const ownerBalanceBefore = await baseTITN.balanceOf(ownerA.address)
+
+        // Cancel
+        await expect(vesting.connect(ownerA).cancel(user1.address))
+            .to.emit(vesting, 'Claim')
+            .withArgs(user1.address, vestedAmount)
+
+        const userBalance = await baseTITN.balanceOf(user1.address)
+        expect(userBalance).to.equal(vestedAmount)
+
+        const ownerBalance = await baseTITN.balanceOf(ownerA.address)
+        expect(ownerBalance).to.equal(ownerBalanceBefore) // No unvested funds to refund
+
+        const remaining = await vesting.vestedBalanceOf(user1.address)
+        expect(remaining).to.equal(0)
+    })
+
+    it('should allow owner to cancel vesting: sends vested to user, unvested to owner', async () => {
+        const vestedAmount = ethers.utils.parseEther('300')
+        const totalDuration = defaultDuration
+        const elapsedTime = totalDuration / 3 // ≈10 days
+
+        // Fund vesting contract and assign to user1
+        await baseTITN.connect(ownerA).transfer(vesting.address, vestedAmount)
+        await vesting.connect(ownerA).vest([user1.address], [vestedAmount])
+
+        // Simulate time forward
+        const timeUntilStart = startTimestamp - (await time.latest()) + 1
+        await time.increase(timeUntilStart + elapsedTime)
+
+        const claimableBefore = await vesting.canClaim(user1.address)
+        expect(claimableBefore).to.be.gt(0)
+
+        const ownerBalanceBefore = await baseTITN.balanceOf(ownerA.address)
+
+        // Cancel vesting
+        await vesting.connect(ownerA).cancel(user1.address)
+        const userBalance = await baseTITN.balanceOf(user1.address)
+        expect(userBalance).to.be.closeTo(claimableBefore, ethers.utils.parseEther('0.0002'))
+
+        // Unvested portion should be refunded to owner
+        const ownerBalanceAfter = await baseTITN.balanceOf(ownerA.address)
+        const actualOwnerRefund = ownerBalanceAfter.sub(ownerBalanceBefore)
+        const expectedOwnerRefund = vestedAmount.sub(claimableBefore)
+        expect(actualOwnerRefund).to.be.closeTo(expectedOwnerRefund, ethers.utils.parseEther('0.0002'))
+
+        // Vesting entry should be removed
+        const remaining = await vesting.vestedBalanceOf(user1.address)
+        expect(remaining).to.equal(0)
     })
 })
