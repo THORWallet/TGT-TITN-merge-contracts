@@ -17,9 +17,9 @@ const deploy: DeployFunction = async (hre) => {
     console.log(`Deployer: ${deployer}`)
 
     const deploymentTitn = await deployments.get('Titn')
-    const startTimestamp = 1754006400000
+    const startTimestamp = 1754006400
     const vestingDurationInYears = 3
-    const vestingDuration = vestingDurationInYears * 365 * 24 * 60 * 60 * 1000
+    const vestingDuration = vestingDurationInYears * 365 * 24 * 60 * 60
 
     const { address } = await deploy(contractName, {
         from: deployer,
