@@ -12,7 +12,7 @@ import '@layerzerolabs/toolbox-hardhat'
 import { HardhatUserConfig, HttpNetworkAccountsUserConfig } from 'hardhat/types'
 
 import { EndpointId } from '@layerzerolabs/lz-definitions'
-import '@nomiclabs/hardhat-etherscan'
+import '@nomicfoundation/hardhat-verify'
 
 // Set your preferred authentication method
 //
@@ -65,28 +65,23 @@ const config: HardhatUserConfig = {
             accounts,
             chainId: 8453,
         },
+        bsc: {
+            eid: EndpointId.BSC_V2_MAINNET,
+            url: 'https://bsc-dataseed.binance.org',
+            accounts,
+            chainId: 56,
+        },
         hardhat: {
             // Need this for testing because TestHelperOz5.sol is exceeding the compiled contract size limit
             allowUnlimitedContractSize: true,
             chainId: 42161, // Simulate Arbitrum chain ID for testing ARB.TITN transfers
         },
     },
-    // @ts-ignore
     etherscan: {
-        apiKey: {
-            base: process.env.BASESCAN_KEY || '',
-            arbitrumOne: process.env.ARBISCAN_KEY || '',
-        },
-        customChains: [
-            {
-                network: 'base',
-                chainId: 8453,
-                urls: {
-                    apiURL: 'https://api.basescan.org/api',
-                    browserURL: 'https://basescan.org',
-                },
-            },
-        ],
+        // Etherscan V2 uses a single unified API key across all supported
+        // chains. Any Etherscan-family key (basescan.org, arbiscan.io, etc.)
+        // works since they share an account system.
+        apiKey: process.env.ETHERSCAN_KEY || process.env.BASESCAN_KEY || process.env.ARBISCAN_KEY || '',
     },
     namedAccounts: {
         deployer: {
