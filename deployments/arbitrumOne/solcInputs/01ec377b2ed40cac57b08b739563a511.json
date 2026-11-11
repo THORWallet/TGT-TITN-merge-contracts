@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/interfaces/ITokenMessengerV2.sol": {
+      "content": "// SPDX-License-Identifier: Apache-2.0\npragma solidity ^0.8.19;\n\n/// @notice Minimal interface for Circle's CCTP V2 TokenMessengerV2.\n/// Source: https://github.com/circlefin/evm-cctp-contracts/blob/master/src/v2/TokenMessengerV2.sol\n/// Mainnet address (same on Ethereum, Base, Arbitrum, ...): 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d\ninterface ITokenMessengerV2 {\n    event DepositForBurn(\n        address indexed burnToken,\n        uint256 amount,\n        address indexed depositor,\n        bytes32 mintRecipient,\n        uint32 destinationDomain,\n        bytes32 destinationTokenMessenger,\n        bytes32 destinationCaller,\n        uint256 maxFee,\n        uint32 indexed minFinalityThreshold,\n        bytes hookData\n    );\n\n    /// @param amount amount of tokens to burn\n    /// @param destinationDomain destination domain (Ethereum = 0, Arbitrum = 3, Base = 6)\n    /// @param mintRecipient address of mint recipient on destination domain, as bytes32\n    /// @param burnToken token to burn on the local domain\n    /// @param destinationCaller authorized caller of receiveMessage on destination; bytes32(0) = anyone\n    /// @param maxFee maximum fee paid on destination, in units of burnToken (0 for Standard Transfers)\n    /// @param minFinalityThreshold 1000 = Fast Transfer, 2000 = Standard Transfer\n    function depositForBurn(\n        uint256 amount,\n        uint32 destinationDomain,\n        bytes32 mintRecipient,\n        address burnToken,\n        bytes32 destinationCaller,\n        uint256 maxFee,\n        uint32 minFinalityThreshold\n    ) external;\n}\n"
+    },
+    "contracts/USDCBridgeV2.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"./interfaces/ITokenMessengerV2.sol\";\n\ninterface IERC20Minimal {\n    function approve(address spender, uint256 amount) external returns (bool);\n    function balanceOf(address account) external view returns (uint256);\n    function transfer(address recipient, uint256 amount) external returns (bool);\n}\n\n/// @title USDCBridgeV2\n/// @notice Same behaviour as USDCBridge, but on Circle CCTP V2 (CCTP V1 is shut down on Dec 1, 2026).\n///         Holds USDC and, when the owner calls bridgeUSDC(), burns the full balance so it is minted\n///         to `mintRecipient` on the destination domain.\n/// @dev Ethereum -> Base deployment params:\n///        usdc               0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48\n///        tokenMessenger     0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d (TokenMessengerV2)\n///        destinationDomain  6 (Base)\ncontract USDCBridgeV2 {\n    uint32 public constant FINALITY_FAST = 1000;\n    uint32 public constant FINALITY_STANDARD = 2000;\n\n    address public immutable usdc;\n    ITokenMessengerV2 public immutable tokenMessenger;\n    uint32 public immutable destinationDomain;\n\n    address public mintRecipient; // receives the minted USDC on the destination chain\n    address public owner;\n    uint256 public maxFee; // 0 for Standard Transfers (free)\n    uint32 public minFinalityThreshold = FINALITY_STANDARD;\n\n    event BridgeInitiated(address indexed recipient, address indexed from, uint256 amount);\n    event MintRecipientUpdated(address indexed newMintRecipient);\n    event TransferParamsUpdated(uint256 maxFee, uint32 minFinalityThreshold);\n    event OwnerUpdated(address indexed newOwner);\n    event EmergencyWithdrawal(address indexed owner, uint256 usdcAmount, uint256 ethAmount);\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not authorized\");\n        _;\n    }\n\n    constructor(address _usdc, address _tokenMessenger, uint32 _destinationDomain, address _mintRecipient) {\n        require(_usdc != address(0) && _tokenMessenger != address(0), \"Invalid address\");\n        require(_mintRecipient != address(0), \"Invalid recipient\");\n        usdc = _usdc;\n        tokenMessenger = ITokenMessengerV2(_tokenMessenger);\n        destinationDomain = _destinationDomain;\n        mintRecipient = _mintRecipient;\n        owner = msg.sender;\n    }\n\n    function bridgeUSDC() external onlyOwner {\n        uint256 amount = IERC20Minimal(usdc).balanceOf(address(this));\n        require(amount > 0, \"No USDC to bridge\");\n\n        require(IERC20Minimal(usdc).approve(address(tokenMessenger), amount), \"Approve failed\");\n\n        tokenMessenger.depositForBurn(\n            amount,\n            destinationDomain,\n            bytes32(uint256(uint160(mintRecipient))),\n            usdc,\n            bytes32(0), // anyone may call receiveMessage on the destination chain\n            maxFee,\n            minFinalityThreshold\n        );\n\n        emit BridgeInitiated(mintRecipient, msg.sender, amount);\n    }\n\n    function setMintRecipient(address _newMintRecipient) external onlyOwner {\n        require(_newMintRecipient != address(0), \"Invalid address\");\n        mintRecipient = _newMintRecipient;\n        emit MintRecipientUpdated(_newMintRecipient);\n    }\n\n    /// @notice Switch between Standard (maxFee 0, threshold 2000) and Fast (maxFee > 0, threshold 1000) transfers.\n    function setTransferParams(uint256 _maxFee, uint32 _minFinalityThreshold) external onlyOwner {\n        require(\n            _minFinalityThreshold == FINALITY_FAST || _minFinalityThreshold == FINALITY_STANDARD,\n            \"Invalid finality threshold\"\n        );\n        maxFee = _maxFee;\n        minFinalityThreshold = _minFinalityThreshold;\n        emit TransferParamsUpdated(_maxFee, _minFinalityThreshold);\n    }\n\n    function setOwner(address _newOwner) external onlyOwner {\n        require(_newOwner != address(0), \"Invalid owner address\");\n        owner = _newOwner;\n        emit OwnerUpdated(_newOwner);\n    }\n\n    function emergencyWithdraw() external onlyOwner {\n        uint256 usdcBalance = IERC20Minimal(usdc).balanceOf(address(this));\n        uint256 ethBalance = address(this).balance;\n\n        if (usdcBalance > 0) {\n            require(IERC20Minimal(usdc).transfer(owner, usdcBalance), \"USDC transfer failed\");\n        }\n\n        if (ethBalance > 0) {\n            (bool success, ) = payable(owner).call{value: ethBalance}(\"\");\n            require(success, \"ETH transfer failed\");\n        }\n\n        emit EmergencyWithdrawal(owner, usdcBalance, ethBalance);\n    }\n\n    receive() external payable {}\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

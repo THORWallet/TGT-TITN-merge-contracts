@@ -1,0 +1,402 @@
+{
+  "address": "0xef1BB6e2cCf81DB1AbeA2CA384a881A30b4cC1d4",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_usdc",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_tokenMessenger",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_destinationDomain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_mintRecipient",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BridgeInitiated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdcAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "ethAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "EmergencyWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newMintRecipient",
+          "type": "address"
+        }
+      ],
+      "name": "MintRecipientUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "maxFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "minFinalityThreshold",
+          "type": "uint32"
+        }
+      ],
+      "name": "TransferParamsUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "FINALITY_FAST",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "FINALITY_STANDARD",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "bridgeUSDC",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "destinationDomain",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "emergencyWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minFinalityThreshold",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mintRecipient",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newMintRecipient",
+          "type": "address"
+        }
+      ],
+      "name": "setMintRecipient",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "setOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_maxFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_minFinalityThreshold",
+          "type": "uint32"
+        }
+      ],
+      "name": "setTransferParams",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tokenMessenger",
+      "outputs": [
+        {
+          "internalType": "contract ITokenMessengerV2",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "usdc",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0x98783376df779febf9ae4ae707691c23c06234125a813d42d1827aa7305aed9e",
+  "receipt": {
+    "to": null,
+    "from": "0xE69Bc665F54d49279D0d5279220440Ea23096aba",
+    "contractAddress": "0xef1BB6e2cCf81DB1AbeA2CA384a881A30b4cC1d4",
+    "transactionIndex": 1,
+    "gasUsed": "797060",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x7b484d7d862bff96a4909ecff91931725deb38ad36659fd86796ad9cd4c4f749",
+    "transactionHash": "0x98783376df779febf9ae4ae707691c23c06234125a813d42d1827aa7305aed9e",
+    "logs": [],
+    "blockNumber": 523262677,
+    "cumulativeGasUsed": "797060",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+    "0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d",
+    6,
+    "0x76a3B8FeA6F6C7D7af5B47885563955F3ACd9BC2"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "01ec377b2ed40cac57b08b739563a511",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.22+commit.4fc1097e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_usdc\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_tokenMessenger\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"_destinationDomain\",\"type\":\"uint32\"},{\"internalType\":\"address\",\"name\":\"_mintRecipient\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"BridgeInitiated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"usdcAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"ethAmount\",\"type\":\"uint256\"}],\"name\":\"EmergencyWithdrawal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newMintRecipient\",\"type\":\"address\"}],\"name\":\"MintRecipientUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maxFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"minFinalityThreshold\",\"type\":\"uint32\"}],\"name\":\"TransferParamsUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"FINALITY_FAST\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"FINALITY_STANDARD\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"bridgeUSDC\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"destinationDomain\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"minFinalityThreshold\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"mintRecipient\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newMintRecipient\",\"type\":\"address\"}],\"name\":\"setMintRecipient\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_maxFee\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"_minFinalityThreshold\",\"type\":\"uint32\"}],\"name\":\"setTransferParams\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tokenMessenger\",\"outputs\":[{\"internalType\":\"contract ITokenMessengerV2\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"usdc\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\"Ethereum -> Base deployment params:        usdc               0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48        tokenMessenger     0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d (TokenMessengerV2)        destinationDomain  6 (Base)\",\"kind\":\"dev\",\"methods\":{},\"title\":\"USDCBridgeV2\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"setTransferParams(uint256,uint32)\":{\"notice\":\"Switch between Standard (maxFee 0, threshold 2000) and Fast (maxFee > 0, threshold 1000) transfers.\"}},\"notice\":\"Same behaviour as USDCBridge, but on Circle CCTP V2 (CCTP V1 is shut down on Dec 1, 2026).         Holds USDC and, when the owner calls bridgeUSDC(), burns the full balance so it is minted         to `mintRecipient` on the destination domain.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/USDCBridgeV2.sol\":\"USDCBridgeV2\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/USDCBridgeV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\nimport \\\"./interfaces/ITokenMessengerV2.sol\\\";\\n\\ninterface IERC20Minimal {\\n    function approve(address spender, uint256 amount) external returns (bool);\\n    function balanceOf(address account) external view returns (uint256);\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\n}\\n\\n/// @title USDCBridgeV2\\n/// @notice Same behaviour as USDCBridge, but on Circle CCTP V2 (CCTP V1 is shut down on Dec 1, 2026).\\n///         Holds USDC and, when the owner calls bridgeUSDC(), burns the full balance so it is minted\\n///         to `mintRecipient` on the destination domain.\\n/// @dev Ethereum -> Base deployment params:\\n///        usdc               0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48\\n///        tokenMessenger     0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d (TokenMessengerV2)\\n///        destinationDomain  6 (Base)\\ncontract USDCBridgeV2 {\\n    uint32 public constant FINALITY_FAST = 1000;\\n    uint32 public constant FINALITY_STANDARD = 2000;\\n\\n    address public immutable usdc;\\n    ITokenMessengerV2 public immutable tokenMessenger;\\n    uint32 public immutable destinationDomain;\\n\\n    address public mintRecipient; // receives the minted USDC on the destination chain\\n    address public owner;\\n    uint256 public maxFee; // 0 for Standard Transfers (free)\\n    uint32 public minFinalityThreshold = FINALITY_STANDARD;\\n\\n    event BridgeInitiated(address indexed recipient, address indexed from, uint256 amount);\\n    event MintRecipientUpdated(address indexed newMintRecipient);\\n    event TransferParamsUpdated(uint256 maxFee, uint32 minFinalityThreshold);\\n    event OwnerUpdated(address indexed newOwner);\\n    event EmergencyWithdrawal(address indexed owner, uint256 usdcAmount, uint256 ethAmount);\\n\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"Not authorized\\\");\\n        _;\\n    }\\n\\n    constructor(address _usdc, address _tokenMessenger, uint32 _destinationDomain, address _mintRecipient) {\\n        require(_usdc != address(0) && _tokenMessenger != address(0), \\\"Invalid address\\\");\\n        require(_mintRecipient != address(0), \\\"Invalid recipient\\\");\\n        usdc = _usdc;\\n        tokenMessenger = ITokenMessengerV2(_tokenMessenger);\\n        destinationDomain = _destinationDomain;\\n        mintRecipient = _mintRecipient;\\n        owner = msg.sender;\\n    }\\n\\n    function bridgeUSDC() external onlyOwner {\\n        uint256 amount = IERC20Minimal(usdc).balanceOf(address(this));\\n        require(amount > 0, \\\"No USDC to bridge\\\");\\n\\n        require(IERC20Minimal(usdc).approve(address(tokenMessenger), amount), \\\"Approve failed\\\");\\n\\n        tokenMessenger.depositForBurn(\\n            amount,\\n            destinationDomain,\\n            bytes32(uint256(uint160(mintRecipient))),\\n            usdc,\\n            bytes32(0), // anyone may call receiveMessage on the destination chain\\n            maxFee,\\n            minFinalityThreshold\\n        );\\n\\n        emit BridgeInitiated(mintRecipient, msg.sender, amount);\\n    }\\n\\n    function setMintRecipient(address _newMintRecipient) external onlyOwner {\\n        require(_newMintRecipient != address(0), \\\"Invalid address\\\");\\n        mintRecipient = _newMintRecipient;\\n        emit MintRecipientUpdated(_newMintRecipient);\\n    }\\n\\n    /// @notice Switch between Standard (maxFee 0, threshold 2000) and Fast (maxFee > 0, threshold 1000) transfers.\\n    function setTransferParams(uint256 _maxFee, uint32 _minFinalityThreshold) external onlyOwner {\\n        require(\\n            _minFinalityThreshold == FINALITY_FAST || _minFinalityThreshold == FINALITY_STANDARD,\\n            \\\"Invalid finality threshold\\\"\\n        );\\n        maxFee = _maxFee;\\n        minFinalityThreshold = _minFinalityThreshold;\\n        emit TransferParamsUpdated(_maxFee, _minFinalityThreshold);\\n    }\\n\\n    function setOwner(address _newOwner) external onlyOwner {\\n        require(_newOwner != address(0), \\\"Invalid owner address\\\");\\n        owner = _newOwner;\\n        emit OwnerUpdated(_newOwner);\\n    }\\n\\n    function emergencyWithdraw() external onlyOwner {\\n        uint256 usdcBalance = IERC20Minimal(usdc).balanceOf(address(this));\\n        uint256 ethBalance = address(this).balance;\\n\\n        if (usdcBalance > 0) {\\n            require(IERC20Minimal(usdc).transfer(owner, usdcBalance), \\\"USDC transfer failed\\\");\\n        }\\n\\n        if (ethBalance > 0) {\\n            (bool success, ) = payable(owner).call{value: ethBalance}(\\\"\\\");\\n            require(success, \\\"ETH transfer failed\\\");\\n        }\\n\\n        emit EmergencyWithdrawal(owner, usdcBalance, ethBalance);\\n    }\\n\\n    receive() external payable {}\\n}\\n\",\"keccak256\":\"0xb3bd45b70fc17b9d93887487fed9e1a0d3c8b4b3ca8acd9f75fc84e52573c70e\",\"license\":\"MIT\"},\"contracts/interfaces/ITokenMessengerV2.sol\":{\"content\":\"// SPDX-License-Identifier: Apache-2.0\\npragma solidity ^0.8.19;\\n\\n/// @notice Minimal interface for Circle's CCTP V2 TokenMessengerV2.\\n/// Source: https://github.com/circlefin/evm-cctp-contracts/blob/master/src/v2/TokenMessengerV2.sol\\n/// Mainnet address (same on Ethereum, Base, Arbitrum, ...): 0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d\\ninterface ITokenMessengerV2 {\\n    event DepositForBurn(\\n        address indexed burnToken,\\n        uint256 amount,\\n        address indexed depositor,\\n        bytes32 mintRecipient,\\n        uint32 destinationDomain,\\n        bytes32 destinationTokenMessenger,\\n        bytes32 destinationCaller,\\n        uint256 maxFee,\\n        uint32 indexed minFinalityThreshold,\\n        bytes hookData\\n    );\\n\\n    /// @param amount amount of tokens to burn\\n    /// @param destinationDomain destination domain (Ethereum = 0, Arbitrum = 3, Base = 6)\\n    /// @param mintRecipient address of mint recipient on destination domain, as bytes32\\n    /// @param burnToken token to burn on the local domain\\n    /// @param destinationCaller authorized caller of receiveMessage on destination; bytes32(0) = anyone\\n    /// @param maxFee maximum fee paid on destination, in units of burnToken (0 for Standard Transfers)\\n    /// @param minFinalityThreshold 1000 = Fast Transfer, 2000 = Standard Transfer\\n    function depositForBurn(\\n        uint256 amount,\\n        uint32 destinationDomain,\\n        bytes32 mintRecipient,\\n        address burnToken,\\n        bytes32 destinationCaller,\\n        uint256 maxFee,\\n        uint32 minFinalityThreshold\\n    ) external;\\n}\\n\",\"keccak256\":\"0x2affb3760294194dc7d326d7a89b75fa300f8d1a892efbedbbe79ba9fc871e56\",\"license\":\"Apache-2.0\"}},\"version\":1}",
+  "bytecode": "0x60e06040526003805463ffffffff19166107d017905534801561002157600080fd5b50604051610e2f380380610e2f8339810160408190526100409161014e565b6001600160a01b0384161580159061006057506001600160a01b03831615155b6100a35760405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206164647265737360881b60448201526064015b60405180910390fd5b6001600160a01b0381166100ed5760405162461bcd60e51b8152602060048201526011602482015270125b9d985b1a59081c9958da5c1a595b9d607a1b604482015260640161009a565b6001600160a01b0393841660805291831660a05263ffffffff1660c05260008054919092166001600160a01b03199182161790915560018054909116331790556101ad565b80516001600160a01b038116811461014957600080fd5b919050565b6000806000806080858703121561016457600080fd5b61016d85610132565b935061017b60208601610132565b9250604085015163ffffffff8116811461019457600080fd5b91506101a260608601610132565b905092959194509250565b60805160a05160c051610c1b6102146000396000818161019c01526106bd01526000818161021c015281816105bf01526107360152600081816101d0015281816104ef015281816105ee015281816106f50152818161081b01526108c00152610c1b6000f3fe6080604052600436106100e15760003560e01c806366d7b5ce1161007f578063d69b22f211610059578063d69b22f21461028a578063db2e21bc1461029f578063e8a7bc57146102b4578063e946b7ed146102d457600080fd5b806366d7b5ce1461023e5780638da5cb5b14610254578063cc6eec701461027457600080fd5b806316a0f250116100bb57806316a0f250146101585780632858c55a1461018a5780633e413bee146101be578063461178301461020a57600080fd5b806301f59d16146100ed578063123634991461011657806313af40351461013857600080fd5b366100e857005b600080fd5b3480156100f957600080fd5b5061010360025481565b6040519081526020015b60405180910390f35b34801561012257600080fd5b50610136610131366004610b19565b6102f4565b005b34801561014457600080fd5b50610136610153366004610b52565b6103eb565b34801561016457600080fd5b506003546101759063ffffffff1681565b60405163ffffffff909116815260200161010d565b34801561019657600080fd5b506101757f000000000000000000000000000000000000000000000000000000000000000081565b3480156101ca57600080fd5b506101f27f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161010d565b34801561021657600080fd5b506101f27f000000000000000000000000000000000000000000000000000000000000000081565b34801561024a57600080fd5b506101756107d081565b34801561026057600080fd5b506001546101f2906001600160a01b031681565b34801561028057600080fd5b506101756103e881565b34801561029657600080fd5b506101366104ad565b3480156102ab57600080fd5b506101366107d9565b3480156102c057600080fd5b506000546101f2906001600160a01b031681565b3480156102e057600080fd5b506101366102ef366004610b52565b610a5f565b6001546001600160a01b031633146103275760405162461bcd60e51b815260040161031e90610b82565b60405180910390fd5b63ffffffff81166103e81480610344575063ffffffff81166107d0145b6103905760405162461bcd60e51b815260206004820152601a60248201527f496e76616c69642066696e616c697479207468726573686f6c64000000000000604482015260640161031e565b60028290556003805463ffffffff191663ffffffff83169081179091556040805184815260208101929092527f5e9a42908d4ad42b4d08e9d7a926c5dcd573485c3bda917f4c4bb0fb88bcf601910160405180910390a15050565b6001546001600160a01b031633146104155760405162461bcd60e51b815260040161031e90610b82565b6001600160a01b0381166104635760405162461bcd60e51b8152602060048201526015602482015274496e76616c6964206f776e6572206164647265737360581b604482015260640161031e565b600180546001600160a01b0319166001600160a01b0383169081179091556040517f4ffd725fc4a22075e9ec71c59edf9c38cdeb588a91b24fc5b61388c5be41282b90600090a250565b6001546001600160a01b031633146104d75760405162461bcd60e51b815260040161031e90610b82565b6040516370a0823160e01b81523060048201526000907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa15801561053e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105629190610baa565b9050600081116105a85760405162461bcd60e51b81526020600482015260116024820152704e6f205553444320746f2062726964676560781b604482015260640161031e565b60405163095ea7b360e01b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000081166004830152602482018390527f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303816000875af1158015610637573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061065b9190610bc3565b6106985760405162461bcd60e51b815260206004820152600e60248201526d105c1c1c9bdd994819985a5b195960921b604482015260640161031e565b60008054600254600354604051634701287760e11b81526004810186905263ffffffff7f0000000000000000000000000000000000000000000000000000000000000000811660248301526001600160a01b0394851660448301527f000000000000000000000000000000000000000000000000000000000000000085166064830152608482019590955260a48101929092529290921660c48301527f00000000000000000000000000000000000000000000000000000000000000001690638e0250ee9060e401600060405180830381600087803b15801561077a57600080fd5b505af115801561078e573d6000803e3d6000fd5b50506000546040518481523393506001600160a01b0390911691507f2d2927655ab697dbc92385d4f7aade44509715e39c4f903c4239c1648c4e61389060200160405180910390a350565b6001546001600160a01b031633146108035760405162461bcd60e51b815260040161031e90610b82565b6040516370a0823160e01b81523060048201526000907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa15801561086a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061088e9190610baa565b90504781156109725760015460405163a9059cbb60e01b81526001600160a01b039182166004820152602481018490527f00000000000000000000000000000000000000000000000000000000000000009091169063a9059cbb906044016020604051808303816000875af115801561090b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061092f9190610bc3565b6109725760405162461bcd60e51b81526020600482015260146024820152731554d110c81d1c985b9cd9995c8819985a5b195960621b604482015260640161031e565b8015610a13576001546040516000916001600160a01b03169083908381818185875af1925050503d80600081146109c5576040519150601f19603f3d011682016040523d82523d6000602084013e6109ca565b606091505b5050905080610a115760405162461bcd60e51b8152602060048201526013602482015272115512081d1c985b9cd9995c8819985a5b1959606a1b604482015260640161031e565b505b60015460408051848152602081018490526001600160a01b03909216917f56da9a5ae0bcf6e7c3fdd78a10550e7d0458de1c39bfb7f6e96a3e92dd344a68910160405180910390a25050565b6001546001600160a01b03163314610a895760405162461bcd60e51b815260040161031e90610b82565b6001600160a01b038116610ad15760405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206164647265737360881b604482015260640161031e565b600080546001600160a01b0319166001600160a01b038316908117825560405190917f5d811768c4cd84c3aa57b9b99d0608118a3c2eaf21e2b403db0bf05f924ba22291a250565b60008060408385031215610b2c57600080fd5b82359150602083013563ffffffff81168114610b4757600080fd5b809150509250929050565b600060208284031215610b6457600080fd5b81356001600160a01b0381168114610b7b57600080fd5b9392505050565b6020808252600e908201526d139bdd08185d5d1a1bdc9a5e995960921b604082015260600190565b600060208284031215610bbc57600080fd5b5051919050565b600060208284031215610bd557600080fd5b81518015158114610b7b57600080fdfea264697066735822122008d660ef86f8e3b9cd387db2aed7269af2ea0e87457ef83ab7861c0ea08e5bea64736f6c63430008160033",
+  "deployedBytecode": "0x6080604052600436106100e15760003560e01c806366d7b5ce1161007f578063d69b22f211610059578063d69b22f21461028a578063db2e21bc1461029f578063e8a7bc57146102b4578063e946b7ed146102d457600080fd5b806366d7b5ce1461023e5780638da5cb5b14610254578063cc6eec701461027457600080fd5b806316a0f250116100bb57806316a0f250146101585780632858c55a1461018a5780633e413bee146101be578063461178301461020a57600080fd5b806301f59d16146100ed578063123634991461011657806313af40351461013857600080fd5b366100e857005b600080fd5b3480156100f957600080fd5b5061010360025481565b6040519081526020015b60405180910390f35b34801561012257600080fd5b50610136610131366004610b19565b6102f4565b005b34801561014457600080fd5b50610136610153366004610b52565b6103eb565b34801561016457600080fd5b506003546101759063ffffffff1681565b60405163ffffffff909116815260200161010d565b34801561019657600080fd5b506101757f000000000000000000000000000000000000000000000000000000000000000081565b3480156101ca57600080fd5b506101f27f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161010d565b34801561021657600080fd5b506101f27f000000000000000000000000000000000000000000000000000000000000000081565b34801561024a57600080fd5b506101756107d081565b34801561026057600080fd5b506001546101f2906001600160a01b031681565b34801561028057600080fd5b506101756103e881565b34801561029657600080fd5b506101366104ad565b3480156102ab57600080fd5b506101366107d9565b3480156102c057600080fd5b506000546101f2906001600160a01b031681565b3480156102e057600080fd5b506101366102ef366004610b52565b610a5f565b6001546001600160a01b031633146103275760405162461bcd60e51b815260040161031e90610b82565b60405180910390fd5b63ffffffff81166103e81480610344575063ffffffff81166107d0145b6103905760405162461bcd60e51b815260206004820152601a60248201527f496e76616c69642066696e616c697479207468726573686f6c64000000000000604482015260640161031e565b60028290556003805463ffffffff191663ffffffff83169081179091556040805184815260208101929092527f5e9a42908d4ad42b4d08e9d7a926c5dcd573485c3bda917f4c4bb0fb88bcf601910160405180910390a15050565b6001546001600160a01b031633146104155760405162461bcd60e51b815260040161031e90610b82565b6001600160a01b0381166104635760405162461bcd60e51b8152602060048201526015602482015274496e76616c6964206f776e6572206164647265737360581b604482015260640161031e565b600180546001600160a01b0319166001600160a01b0383169081179091556040517f4ffd725fc4a22075e9ec71c59edf9c38cdeb588a91b24fc5b61388c5be41282b90600090a250565b6001546001600160a01b031633146104d75760405162461bcd60e51b815260040161031e90610b82565b6040516370a0823160e01b81523060048201526000907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa15801561053e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105629190610baa565b9050600081116105a85760405162461bcd60e51b81526020600482015260116024820152704e6f205553444320746f2062726964676560781b604482015260640161031e565b60405163095ea7b360e01b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000081166004830152602482018390527f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303816000875af1158015610637573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061065b9190610bc3565b6106985760405162461bcd60e51b815260206004820152600e60248201526d105c1c1c9bdd994819985a5b195960921b604482015260640161031e565b60008054600254600354604051634701287760e11b81526004810186905263ffffffff7f0000000000000000000000000000000000000000000000000000000000000000811660248301526001600160a01b0394851660448301527f000000000000000000000000000000000000000000000000000000000000000085166064830152608482019590955260a48101929092529290921660c48301527f00000000000000000000000000000000000000000000000000000000000000001690638e0250ee9060e401600060405180830381600087803b15801561077a57600080fd5b505af115801561078e573d6000803e3d6000fd5b50506000546040518481523393506001600160a01b0390911691507f2d2927655ab697dbc92385d4f7aade44509715e39c4f903c4239c1648c4e61389060200160405180910390a350565b6001546001600160a01b031633146108035760405162461bcd60e51b815260040161031e90610b82565b6040516370a0823160e01b81523060048201526000907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316906370a0823190602401602060405180830381865afa15801561086a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061088e9190610baa565b90504781156109725760015460405163a9059cbb60e01b81526001600160a01b039182166004820152602481018490527f00000000000000000000000000000000000000000000000000000000000000009091169063a9059cbb906044016020604051808303816000875af115801561090b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061092f9190610bc3565b6109725760405162461bcd60e51b81526020600482015260146024820152731554d110c81d1c985b9cd9995c8819985a5b195960621b604482015260640161031e565b8015610a13576001546040516000916001600160a01b03169083908381818185875af1925050503d80600081146109c5576040519150601f19603f3d011682016040523d82523d6000602084013e6109ca565b606091505b5050905080610a115760405162461bcd60e51b8152602060048201526013602482015272115512081d1c985b9cd9995c8819985a5b1959606a1b604482015260640161031e565b505b60015460408051848152602081018490526001600160a01b03909216917f56da9a5ae0bcf6e7c3fdd78a10550e7d0458de1c39bfb7f6e96a3e92dd344a68910160405180910390a25050565b6001546001600160a01b03163314610a895760405162461bcd60e51b815260040161031e90610b82565b6001600160a01b038116610ad15760405162461bcd60e51b815260206004820152600f60248201526e496e76616c6964206164647265737360881b604482015260640161031e565b600080546001600160a01b0319166001600160a01b038316908117825560405190917f5d811768c4cd84c3aa57b9b99d0608118a3c2eaf21e2b403db0bf05f924ba22291a250565b60008060408385031215610b2c57600080fd5b82359150602083013563ffffffff81168114610b4757600080fd5b809150509250929050565b600060208284031215610b6457600080fd5b81356001600160a01b0381168114610b7b57600080fd5b9392505050565b6020808252600e908201526d139bdd08185d5d1a1bdc9a5e995960921b604082015260600190565b600060208284031215610bbc57600080fd5b5051919050565b600060208284031215610bd557600080fd5b81518015158114610b7b57600080fdfea264697066735822122008d660ef86f8e3b9cd387db2aed7269af2ea0e87457ef83ab7861c0ea08e5bea64736f6c63430008160033",
+  "devdoc": {
+    "details": "Ethereum -> Base deployment params:        usdc               0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48        tokenMessenger     0x28b5a0e9C621a5BadaA536219b3a228C8168cf5d (TokenMessengerV2)        destinationDomain  6 (Base)",
+    "kind": "dev",
+    "methods": {},
+    "title": "USDCBridgeV2",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "setTransferParams(uint256,uint32)": {
+        "notice": "Switch between Standard (maxFee 0, threshold 2000) and Fast (maxFee > 0, threshold 1000) transfers."
+      }
+    },
+    "notice": "Same behaviour as USDCBridge, but on Circle CCTP V2 (CCTP V1 is shut down on Dec 1, 2026).         Holds USDC and, when the owner calls bridgeUSDC(), burns the full balance so it is minted         to `mintRecipient` on the destination domain.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 44,
+        "contract": "contracts/USDCBridgeV2.sol:USDCBridgeV2",
+        "label": "mintRecipient",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 46,
+        "contract": "contracts/USDCBridgeV2.sol:USDCBridgeV2",
+        "label": "owner",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 48,
+        "contract": "contracts/USDCBridgeV2.sol:USDCBridgeV2",
+        "label": "maxFee",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 51,
+        "contract": "contracts/USDCBridgeV2.sol:USDCBridgeV2",
+        "label": "minFinalityThreshold",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint32"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      }
+    }
+  }
+}

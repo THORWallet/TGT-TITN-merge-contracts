@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
     networks: {
         arbitrumOne: {
             eid: EndpointId.ARBITRUM_V2_MAINNET,
-            url: 'https://arb1.arbitrum.io/rpc',
+            url: process.env.ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc',
             accounts,
             chainId: 42161,
         },
@@ -64,6 +64,12 @@ const config: HardhatUserConfig = {
             url: 'https://mainnet.base.org',
             accounts,
             chainId: 8453,
+        },
+        ethereum: {
+            eid: EndpointId.ETHEREUM_V2_MAINNET,
+            url: process.env.ETHEREUM_RPC_URL || 'https://ethereum-rpc.publicnode.com',
+            accounts,
+            chainId: 1,
         },
         bsc: {
             eid: EndpointId.BSC_V2_MAINNET,
